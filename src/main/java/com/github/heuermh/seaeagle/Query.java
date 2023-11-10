@@ -74,9 +74,7 @@ public final class Query implements Callable<Integer> {
     @Option(names = { "-w", "--workgroup" })
     private String workgroup = DEFAULT_WORKGROUP;
     
-    //@Option(names = { "-r", "--region" })
-    // No TypeConverter registered for software.amazon.awssdk.regions.Region of
-    // field software.amazon.awssdk.regions.Region com.github.heuermh.seaeagle.Query.region
+    @Option(names = { "-r", "--region" }, converter = RegionConverter.class)
     private Region region = DEFAULT_REGION;
 
     // not necessary if workgroup provides, use URI/URL?
