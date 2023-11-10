@@ -16,7 +16,6 @@
 package com.github.heuermh.seaeagle;
 
 import static org.dishevelled.compress.Readers.reader;
-import static org.dishevelled.compress.Writers.writer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -226,18 +225,6 @@ public final class Query implements Callable<Integer> {
         return response.queryExecutionId();
     }
 
-    static class CanceledException extends Exception {
-        CanceledException() {
-            super((String) null);
-        }
-    }
-
-    static class FailedException extends Exception {
-        FailedException(final String message) {
-            super(message);
-        }
-    }
-
     void pollUntilComplete(final AthenaClient athenaClient, final String queryExecutionId) throws InterruptedException, CanceledException, FailedException {
         GetQueryExecutionRequest request = GetQueryExecutionRequest.builder()
             .queryExecutionId(queryExecutionId)
@@ -267,7 +254,7 @@ public final class Query implements Callable<Integer> {
     }
 
     void processResults(final AthenaClient athenaClient, final String queryExecutionId) throws AthenaException, IOException {
-        try (Processor processor = createProcessor()) {
+        try (ResultsProcessor processor = createProcessor()) {
             GetQueryResultsRequest request = GetQueryResultsRequest.builder()
                 .queryExecutionId(queryExecutionId)
                 .build();
@@ -282,97 +269,8 @@ public final class Query implements Callable<Integer> {
         }
     }
 
-    abstract class Processor implements AutoCloseable {
-        void columns(final List<ColumnInfo> columns) throws IOException {
-            // empty
-        }
-
-        void rows(final List<ColumnInfo> columns, final List<Row> rows) throws IOException {
-            // empty
-        }
-
-        @Override
-        public void close() {
-            // empty
-        }
-    }
-
-    Processor createProcessor() {
-        return new TabDelimitedWithHeaderFormat();
-    }
-
-    class TabDelimitedFormat extends Processor {
-        private PrintWriter writer;
-        private boolean seenHeaderRow = false;
-
-        protected final PrintWriter getWriter() throws IOException {
-            if (writer == null) {
-                writer = writer(resultsPath);
-            }
-            return writer;
-        }
-
-        // sigh... 
-        boolean isHeaderRow(final List<ColumnInfo> columns, final Row row) {
-            if (columns.isEmpty()) {
-                return false;
-            }
-            if (row.data().isEmpty()) {
-                return false;
-            }
-            String firstColumnName = columns.get(0).name();
-            String firstRowValue = row.data().get(0).varCharValue();
-
-            if (firstColumnName.equals(firstRowValue)) {
-                seenHeaderRow = true;
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        void rows(final List<ColumnInfo> columns, final List<Row> rows) throws IOException {
-            for (Row row : rows) {
-                if (seenHeaderRow || !isHeaderRow(columns, row)) {
-                    StringBuilder sb = new StringBuilder();
-                    for (Iterator<Datum> it = row.data().iterator(); it.hasNext(); ) {
-                        sb.append(it.next().varCharValue());
-                        if (it.hasNext()) {
-                            sb.append("\t");
-                        }
-                    }
-                    getWriter().println(sb.toString());
-                }
-            }
-        }
-
-        @Override
-        public void close() {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-    }
-
-    class TabDelimitedWithHeaderFormat extends TabDelimitedFormat {
-        private boolean wroteHeader = false;
-
-        @Override
-        void columns(final List<ColumnInfo> columns) throws IOException {
-            if (!wroteHeader) {
-                StringBuilder sb = new StringBuilder();
-                for (Iterator<ColumnInfo> it = columns.iterator(); it.hasNext(); ) {
-
-                    // fqn? catalogName(), schemaName(), tableName(), name()                
-                    sb.append(it.next().name());
-                    if (it.hasNext()) {
-                        sb.append("\t");
-                    }
-                }
-                getWriter().println(sb.toString());
-                wroteHeader = true;
-            }
-        }
+    ResultsProcessor createProcessor() {
+        return new TabDelimitedWithHeaderFormat(resultsPath);
     }
 
 
