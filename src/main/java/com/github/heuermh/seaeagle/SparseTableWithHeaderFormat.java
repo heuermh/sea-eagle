@@ -65,13 +65,7 @@ class SparseTableWithHeaderFormat extends TabDelimitedFormat {
     }
 
     @Override
-    public void close() {
-        try {
-            getWriter().println(table.toString());
-        }
-        catch (IOException e) {
-            // ignore
-        }
-        super.close();
+    void complete() throws IOException {
+        getWriter().println(table.toString());
     }
 }

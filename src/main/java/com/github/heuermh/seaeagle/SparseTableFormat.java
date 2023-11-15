@@ -28,15 +28,15 @@ import software.amazon.awssdk.services.athena.model.Datum;
 import software.amazon.awssdk.services.athena.model.Row;
 
 /**
- * Pretty table with header format.
+ * Sparse table format.
  */
-class PrettyTableWithHeaderFormat extends TabDelimitedFormat {
+class SparseTableFormat extends TabDelimitedFormat {
     private boolean readHeader = false;
-    private final PrettyTable table;
+    private final SparseTable table;
 
-    PrettyTableWithHeaderFormat(final Path resultsPath, final int leftPad) {
+    SparseTableFormat(final Path resultsPath, final int leftPad) {
         super(resultsPath);
-        table = new PrettyTable(false, '+', '-', '|', leftPad);
+        table = new SparseTable(true, '-', leftPad);
     }
 
     @Override

@@ -83,6 +83,9 @@ public final class Query implements Callable<Integer> {
     @Option(names = { "-n", "--polling-interval" })
     private long pollingInterval = DEFAULT_POLLING_INTERVAL;
 
+    @Option(names = { "--skip-header" })
+    private boolean skipHeader;
+
     @Option(names = { "--skip-history" })
     private boolean skipHistory;
 
@@ -99,7 +102,7 @@ public final class Query implements Callable<Integer> {
     private Path resultsPath;
 
     @Option(names = { "-f", "--format", "--results-format" })
-    private String resultsFormat; // to enum
+    private String resultsFormat = "text";
 
     @Option(names = { "--left-pad" })
     private int leftPad = 2;
@@ -269,13 +272,39 @@ public final class Query implements Callable<Integer> {
                 processor.columns(columns);
                 processor.rows(columns, rows);
             }
+            processor.complete();
         }
     }
 
     ResultsProcessor createProcessor() {
-        //return new PrettyTableWithHeaderFormat(resultsPath);
-        return new SparseTableWithHeaderFormat(resultsPath, leftPad);
-        //return new TabDelimitedWithHeaderFormat(resultsPath);
+        switch (resultsFormat) {
+        case "pretty":
+            if (skipHeader) {
+                return new PrettyTableFormat(resultsPath, leftPad);
+            }
+            else {
+                return new PrettyTableWithHeaderFormat(resultsPath, leftPad);
+            }
+        case "sparse":
+            if (skipHeader) {
+                return new SparseTableFormat(resultsPath, leftPad);
+            }
+            else {
+                return new SparseTableWithHeaderFormat(resultsPath, leftPad);
+            }
+        case "tui":
+            return new TuiFormat();
+        case "text":
+        case "tsv":
+        case "tab-delimited":
+        default:
+            if (skipHeader) {
+                return new TabDelimitedFormat(resultsPath);
+            }
+            else {
+                return new TabDelimitedWithHeaderFormat(resultsPath);
+            }
+        }
     }
 
 

@@ -48,6 +48,13 @@ abstract class ResultsProcessor implements AutoCloseable {
         // empty
     }
 
+    /**
+     * Notify this results processor the results are complete.
+     */
+    void complete() throws IOException {
+        // empty
+    }
+
     @Override
     public void close() {
         // empty
