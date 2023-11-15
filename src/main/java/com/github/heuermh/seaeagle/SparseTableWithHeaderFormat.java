@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import software.amazon.awssdk.services.athena.model.ColumnInfo;

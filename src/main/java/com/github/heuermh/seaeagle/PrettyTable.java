@@ -128,7 +128,7 @@ class PrettyTable {
         for (int width : columnWidths) {
             entries.add(String.valueOf(horizontalChar).repeat(width + 2));
         }
-        return Arrays.asList(junctionChar + String.join(String.valueOf(junctionChar), entries) + junctionChar);
+        return List.of(junctionChar + String.join(String.valueOf(junctionChar), entries) + junctionChar);
     }
 
     protected List<String> formatRows() {
@@ -179,34 +179,36 @@ class PrettyTable {
 
         List<String> topLines = new ArrayList<>();
         List<String> bottomLines = new ArrayList<>();
-
-        if (valign.equals("t")) {
-            bottomLines = Collections.nCopies(cellHeight - entryLines.size(), " ".repeat(cellWidth + 2));
-        }
-        else if (valign.equals("c")) {
-            int[] paddings = centeredPadding(cellHeight, entryLines.size());
-            topLines = Collections.nCopies(paddings[0], " ".repeat(cellWidth + 2));
-            bottomLines = Collections.nCopies(paddings[1], " ".repeat(cellWidth + 2));
-        }
-        else if (valign.equals("b")) {
-            topLines = Collections.nCopies(cellHeight - entryLines.size(), " ".repeat(cellWidth + 2));
-        }
-        else {
-            throw new IllegalArgumentException("unknown value for valign: " + align);
+        switch (valign) {
+            case "t":
+                bottomLines = Collections.nCopies(cellHeight - entryLines.size(), " ".repeat(cellWidth + 2));
+                break;
+            case "c":
+                int[] paddings = centeredPadding(cellHeight, entryLines.size());
+                topLines = Collections.nCopies(paddings[0], " ".repeat(cellWidth + 2));
+                bottomLines = Collections.nCopies(paddings[1], " ".repeat(cellWidth + 2));
+                break;
+            case "b":
+                topLines = Collections.nCopies(cellHeight - entryLines.size(), " ".repeat(cellWidth + 2));
+                break;
+            default:
+                throw new IllegalArgumentException("unknown value for valign: " + align);
         }
 
         List<String> contentLines = new ArrayList<>();
         for (String line : entryLines) {
-            if (align.equals("c")) {
-                int[] paddings = centeredPadding(cellWidth, line.length());
-                contentLines.add(" " + " ".repeat(paddings[0]) + line + " ".repeat(paddings[1]) + " ");
-            }
-            else if (align.equals("l") || align.equals("r")) {
-                String fmt = (align.equals("l") ? " %-" : " %") + cellWidth + "s ";
-                contentLines.add(String.format(fmt, line));
-            }
-            else {
-                throw new IllegalArgumentException("unknown alignment: " + align);
+            switch (align) {
+                case "c":
+                    int[] paddings = centeredPadding(cellWidth, line.length());
+                    contentLines.add(" " + " ".repeat(paddings[0]) + line + " ".repeat(paddings[1]) + " ");
+                    break;
+                case "l":
+                case "r":
+                    String fmt = (align.equals("l") ? " %-" : " %") + cellWidth + "s ";
+                    contentLines.add(String.format(fmt, line));
+                    break;
+                default:
+                    throw new IllegalArgumentException("unknown alignment: " + align);
             }
         }
 
@@ -227,7 +229,8 @@ class PrettyTable {
 
         if (sameParity) {
             return new int[]{ padding, padding };
-        } else {
+        }
+        else {
             return new int[]{ padding, padding + 1 };
         }
     }

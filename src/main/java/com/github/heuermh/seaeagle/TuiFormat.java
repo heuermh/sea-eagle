@@ -17,11 +17,8 @@ package com.github.heuermh.seaeagle;
 
 import java.io.IOException;
 
-import java.nio.file.Path;
-
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.googlecode.lanterna.gui2.AsynchronousTextGUIThread;

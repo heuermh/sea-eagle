@@ -77,7 +77,7 @@ class TabDelimitedFormat extends ResultsProcessor {
                         sb.append("\t");
                     }
                 }
-                getWriter().println(sb.toString());
+                getWriter().println(sb);
             }
         }
     }

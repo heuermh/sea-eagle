@@ -46,7 +46,7 @@ class TabDelimitedWithHeaderFormat extends TabDelimitedFormat {
                     sb.append("\t");
                 }
             }
-            getWriter().println(sb.toString());
+            getWriter().println(sb);
             wroteHeader = true;
         }
     }
