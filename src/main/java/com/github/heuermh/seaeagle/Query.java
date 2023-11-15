@@ -101,6 +101,9 @@ public final class Query implements Callable<Integer> {
     @Option(names = { "-f", "--format", "--results-format" })
     private String resultsFormat; // to enum
 
+    @Option(names = { "--left-pad" })
+    private int leftPad = 2;
+
     // todo: verbose to change log level at runtime
 
 
@@ -270,7 +273,9 @@ public final class Query implements Callable<Integer> {
     }
 
     ResultsProcessor createProcessor() {
-        return new TabDelimitedWithHeaderFormat(resultsPath);
+        //return new PrettyTableWithHeaderFormat(resultsPath);
+        return new SparseTableWithHeaderFormat(resultsPath, leftPad);
+        //return new TabDelimitedWithHeaderFormat(resultsPath);
     }
 
 

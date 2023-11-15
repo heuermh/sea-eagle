@@ -35,7 +35,7 @@ import software.amazon.awssdk.services.athena.model.Row;
 class TabDelimitedFormat extends ResultsProcessor {
     private final Path resultsPath;
     private PrintWriter writer;
-    private boolean seenHeaderRow = false;
+    protected boolean seenHeaderRow = false;
 
     TabDelimitedFormat(final Path resultsPath) {
         this.resultsPath = resultsPath;
@@ -49,7 +49,7 @@ class TabDelimitedFormat extends ResultsProcessor {
     }
 
     // sigh... 
-    boolean isHeaderRow(final List<ColumnInfo> columns, final Row row) {
+    protected final boolean isHeaderRow(final List<ColumnInfo> columns, final Row row) {
         if (columns.isEmpty()) {
             return false;
         }
