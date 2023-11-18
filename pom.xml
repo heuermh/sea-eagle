@@ -45,7 +45,7 @@
       <dependency>
         <groupId>com.googlecode.lanterna</groupId>
         <artifactId>lanterna</artifactId>
-        <version>${lanterna.version</version>
+        <version>${lanterna.version}</version>
       </dependency>
       <dependency>
         <groupId>info.picocli</groupId>
@@ -65,12 +65,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version></version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version></version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
@@ -85,7 +85,7 @@
     <dependency>
       <groupId>com.googlecode.lanterna</groupId>
       <artifactId>lanterna</artifactId>
-      <version>compile</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>info.picocli</groupId>
