@@ -30,13 +30,23 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
+    <awssdk.version>2.20.25</awssdk.version>
+    <dsh-compress.version>1.6.5</dsh-compress.version>
+    <duckdb.version>0.9.2</duckdb.version>
     <jdk.version>11</jdk.version>
+    <lanterna.version>3.2.0-alpha1</lanterna.version>
     <maven.enforcer.maven-version>[3.1.1,)</maven.enforcer.maven-version>
     <maven.enforcer.jdk-version>[11,)</maven.enforcer.jdk-version>
     <picocli.version>4.7.5</picocli.version>
+    <slf4j.version>1.7.30</slf4j.version>
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.googlecode.lanterna</groupId>
+        <artifactId>lanterna</artifactId>
+        <version>${lanterna.version</version>
+      </dependency>
       <dependency>
         <groupId>info.picocli</groupId>
         <artifactId>picocli</artifactId>
@@ -45,28 +55,38 @@
       <dependency>
         <groupId>org.dishevelled</groupId>
         <artifactId>dsh-compress</artifactId>
-        <version>1.6.5</version>
+        <version>${dsh-compress.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.duckdb</groupId>
+        <artifactId>duckdb_jdbc</artifactId>
+        <version>${duckdb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
+        <version>${slf4j.version></version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>1.7.30</version>
+        <version>${slf4j.version></version>
       </dependency>
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>bom</artifactId>
-        <version>2.20.25</version>
+        <version>${awssdk.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>compile</version>
+    </dependency>
     <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
@@ -76,6 +96,11 @@
       <groupId>org.dishevelled</groupId>
       <artifactId>dsh-compress</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.duckdb</groupId>
+      <artifactId>duckdb_jdbc</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -93,9 +118,9 @@
       <!-- scope? -->
     </dependency>
     <dependency>
-      <groupId>com.googlecode.lanterna</groupId>
-      <artifactId>lanterna</artifactId>
-      <version>3.2.0-alpha1</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
   <build>

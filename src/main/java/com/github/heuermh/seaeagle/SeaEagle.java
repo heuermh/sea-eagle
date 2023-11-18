@@ -294,6 +294,8 @@ public final class SeaEagle implements Callable<Integer> {
 
     ResultsProcessor createProcessor() {
         switch (resultsFormat) {
+            case "parquet":
+                return new ParquetFormat("jdbc:duckdb:", "results", "ZSTD", resultsPath);
             case "pretty":
                 if (skipHeader) {
                     return new PrettyTableFormat(resultsPath, leftPad);
