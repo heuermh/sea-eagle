@@ -295,6 +295,10 @@ public final class SeaEagle implements Callable<Integer> {
     ResultsProcessor createProcessor() {
         switch (resultsFormat) {
             case "parquet":
+                // todo: move this check earlier?
+                if (resultsPath == null) {
+                    throw new IllegalArgumentException("parquet format requires --results-path to be set");
+                }
                 return new ParquetFormat("jdbc:duckdb:", "results", "ZSTD", resultsPath);
             case "pretty":
                 if (skipHeader) {
