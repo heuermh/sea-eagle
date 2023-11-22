@@ -34,12 +34,16 @@ class PrettyTableFormat extends TabDelimitedFormat {
     private final PrettyTable table;
 
     PrettyTableFormat(final Path resultsPath, final int leftPad) {
+        this(resultsPath, leftPad, true);
+    }
+
+    protected PrettyTableFormat(final Path resultsPath, final int leftPad, final boolean skipHeaderWhenEmpty) {
         super(resultsPath);
-        table = new PrettyTable(true, '+', '-', '|', leftPad);
+        table = new PrettyTable(skipHeaderWhenEmpty, '+', '-', '|', leftPad);
     }
 
     @Override
-    void columns(final List<ColumnInfo> columns) throws IOException {
+    void columns(final List<ColumnInfo> columns) {
         if (!readHeader) {
             for (ColumnInfo columnInfo : columns) {
                 String columnName = columnInfo.name();
@@ -51,7 +55,7 @@ class PrettyTableFormat extends TabDelimitedFormat {
     }
 
     @Override
-    void rows(final List<ColumnInfo> columns, final List<Row> rows) throws IOException {
+    void rows(final List<ColumnInfo> columns, final List<Row> rows) {
         for (Row row : rows) {
             if (seenHeaderRow || !isHeaderRow(columns, row)) {
                 List<String> rowValues = new ArrayList<>(row.data().size());

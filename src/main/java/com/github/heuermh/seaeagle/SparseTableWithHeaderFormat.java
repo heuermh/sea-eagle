@@ -15,56 +15,14 @@
  */
 package com.github.heuermh.seaeagle;
 
-import java.io.IOException;
-
 import java.nio.file.Path;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import software.amazon.awssdk.services.athena.model.ColumnInfo;
-import software.amazon.awssdk.services.athena.model.Datum;
-import software.amazon.awssdk.services.athena.model.Row;
 
 /**
  * Sparse table with header format.
  */
-class SparseTableWithHeaderFormat extends TabDelimitedFormat {
-    private boolean readHeader = false;
-    private final SparseTable table;
+class SparseTableWithHeaderFormat extends SparseTableFormat {
 
     SparseTableWithHeaderFormat(final Path resultsPath, final int leftPad) {
-        super(resultsPath);
-        table = new SparseTable(false, '-', leftPad);
-    }
-
-    @Override
-    void columns(final List<ColumnInfo> columns) throws IOException {
-        if (!readHeader) {
-            for (ColumnInfo columnInfo : columns) {
-                String columnName = columnInfo.name();
-                HorizontalAlignment columnAlign = "varchar".equals(columnInfo.type()) ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
-                table.addColumn(columnName, columnAlign);
-            }
-            readHeader = true;
-        }
-    }
-
-    @Override
-    void rows(final List<ColumnInfo> columns, final List<Row> rows) throws IOException {
-        for (Row row : rows) {
-            if (seenHeaderRow || !isHeaderRow(columns, row)) {
-                List<String> rowValues = new ArrayList<>(row.data().size());
-                for (Datum datum : row.data()) {
-                    rowValues.add(datum.varCharValue());
-                }
-                table.addRow(rowValues);
-            }
-        }
-    }
-
-    @Override
-    void complete() throws IOException {
-        getWriter().println(table.toString());
+        super(resultsPath, leftPad, false);
     }
 }

@@ -15,10 +15,9 @@
  */
 package com.github.heuermh.seaeagle;
 
-import static org.dishevelled.compress.Writers.writer;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import java.nio.file.Path;
 
@@ -42,10 +41,7 @@ import software.amazon.awssdk.services.athena.model.Row;
  * Parquet format.
  */
 class ParquetFormat extends ResultsProcessor {
-    private final String url;
     private final Path resultsPath;
-    private final String tableName;
-    private final String parquetCodec;
     private String createSql;
     private String insertSql;
     private String copySql;
@@ -53,6 +49,8 @@ class ParquetFormat extends ResultsProcessor {
     private PreparedStatement insertStatement;
     private boolean seenHeader = false;
     protected boolean seenHeaderRow = false;
+
+    private static final String COPY_SQL = "COPY results TO '%s' (FORMAT 'PARQUET', CODEC 'ZSTD')";
 
     static final ImmutableMap<String, String> TYPE_NAMES = new ImmutableMap.Builder<String, String>()
         .put("boolean", "BIT") // or boolean?
@@ -94,20 +92,15 @@ class ParquetFormat extends ResultsProcessor {
         .put("struct", Types.VARCHAR) // struct<col_name : data_type, ...>
         .buildOrThrow();
 
-
-    ParquetFormat(final String url, final String tableName, final String parquetCodec, final Path resultsPath) {
-        // todo: defaults, resultsPath must not be null
-        this.url = url;
-        this.tableName = tableName;
-        this.parquetCodec = parquetCodec;
+    ParquetFormat(final Path resultsPath) {
+        checkNotNull(resultsPath);
         this.resultsPath = resultsPath;
     }
-
 
     void createConnection() throws IOException {
         try {
             Class.forName("org.duckdb.DuckDBDriver");
-            connection = DriverManager.getConnection(url);
+            connection = DriverManager.getConnection("jdbc:duckdb:");
         }
         catch (Exception e) {
             throw new IOException(e);
@@ -120,23 +113,10 @@ class ParquetFormat extends ResultsProcessor {
             createConnection();
 
             StringBuilder create = new StringBuilder();
-            create.append("CREATE TABLE ");
-            create.append(tableName);
-            create.append(" (");
+            create.append("CREATE TABLE results (");
 
             StringBuilder insert = new StringBuilder();
-            insert.append("INSERT INTO ");
-            insert.append(tableName);
-            insert.append(" (");
-
-            StringBuilder copy = new StringBuilder();
-            copy.append("COPY ");
-            copy.append(tableName);
-            copy.append(" TO '");
-            copy.append(resultsPath.toString());
-            copy.append("' (FORMAT 'PARQUET', CODEC '");
-            copy.append(parquetCodec);
-            copy.append("')");
+            insert.append("INSERT INTO results (");
 
             for (Iterator<ColumnInfo> it = columns.iterator(); it.hasNext(); ) {
                 ColumnInfo columnInfo = it.next();
@@ -168,7 +148,7 @@ class ParquetFormat extends ResultsProcessor {
 
             createSql = create.toString();
             insertSql = insert.toString();
-            copySql = copy.toString();
+            copySql = String.format(COPY_SQL, resultsPath.toString());
 
             seenHeader = true;
         }

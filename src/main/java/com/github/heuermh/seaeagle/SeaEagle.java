@@ -299,7 +299,7 @@ public final class SeaEagle implements Callable<Integer> {
                 if (resultsPath == null) {
                     throw new IllegalArgumentException("parquet format requires --results-path to be set");
                 }
-                return new ParquetFormat("jdbc:duckdb:", "results", "ZSTD", resultsPath);
+                return new ParquetFormat(resultsPath);
             case "pretty":
                 if (skipHeader) {
                     return new PrettyTableFormat(resultsPath, leftPad);

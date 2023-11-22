@@ -67,7 +67,7 @@ class TuiFormat extends ResultsProcessor {
     }
 
     @Override
-    void columns(final List<ColumnInfo> columns) throws IOException {
+    void columns(final List<ColumnInfo> columns) {
         if (!seenHeader) {
             columnAlignments = new ArrayList<>(columns.size());
             List<String> columnNames = new ArrayList<>(columns.size());
@@ -76,7 +76,7 @@ class TuiFormat extends ResultsProcessor {
                 HorizontalAlignment columnAlign = "varchar".equals(columnInfo.type()) ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
                 columnAlignments.add(columnAlign);
             }
-            table = new Table<String>(columnNames.toArray(new String[0]));
+            table = new Table<>(columnNames.toArray(new String[0]));
             table.setTableCellRenderer(new PrettyTableCellRenderer());
             table.setTableHeaderRenderer(new PrettyTableHeaderRenderer());
 
@@ -103,7 +103,7 @@ class TuiFormat extends ResultsProcessor {
     }
 
     @Override
-    void rows(final List<ColumnInfo> columns, final List<Row> rows) throws IOException {
+    void rows(final List<ColumnInfo> columns, final List<Row> rows) {
         for (Row row : rows) {
             if (seenHeaderRow || !isHeaderRow(columns, row)) {
                 List<String> rowValues = new ArrayList<>(row.data().size());
@@ -173,8 +173,7 @@ class TuiFormat extends ResultsProcessor {
                                              final int columnIndex,
                                              final int rowIndex) {
             TerminalSize preferred =  super.getPreferredSize(table, cell, columnIndex, rowIndex);
-            TerminalSize padded = preferred.withRelativeColumns(padding * 2);
-            return padded;
+            return preferred.withRelativeColumns(padding * 2);
         }
 
         /*
@@ -223,8 +222,7 @@ class TuiFormat extends ResultsProcessor {
             TerminalSize preferred = new TerminalSize(maxWidth, 1);
             */
             TerminalSize preferred = super.getPreferredSize(table, label, columnIndex);
-            TerminalSize padded = preferred.withRelativeColumns(padding * 2);
-            return padded;
+            return preferred.withRelativeColumns(padding * 2);
         }
 
         /*

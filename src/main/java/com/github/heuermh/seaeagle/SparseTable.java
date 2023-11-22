@@ -42,6 +42,6 @@ class SparseTable extends PrettyTable {
 
     @Override
     protected List<String> formatFooter() {
-        return Collections.<String>emptyList();
+        return Collections.emptyList();
     }
 }

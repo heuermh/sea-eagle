@@ -34,12 +34,16 @@ class SparseTableFormat extends TabDelimitedFormat {
     private final SparseTable table;
 
     SparseTableFormat(final Path resultsPath, final int leftPad) {
+        this(resultsPath, leftPad, true);
+    }
+
+    protected SparseTableFormat(final Path resultsPath, final int leftPad, final boolean skipHeaderWhenEmpty) {
         super(resultsPath);
-        table = new SparseTable(true, '-', leftPad);
+        table = new SparseTable(skipHeaderWhenEmpty, '-', leftPad);
     }
 
     @Override
-    void columns(final List<ColumnInfo> columns) throws IOException {
+    void columns(final List<ColumnInfo> columns) {
         if (!readHeader) {
             for (ColumnInfo columnInfo : columns) {
                 String columnName = columnInfo.name();
@@ -51,7 +55,7 @@ class SparseTableFormat extends TabDelimitedFormat {
     }
 
     @Override
-    void rows(final List<ColumnInfo> columns, final List<Row> rows) throws IOException {
+    void rows(final List<ColumnInfo> columns, final List<Row> rows) {
         for (Row row : rows) {
             if (seenHeaderRow || !isHeaderRow(columns, row)) {
                 List<String> rowValues = new ArrayList<>(row.data().size());

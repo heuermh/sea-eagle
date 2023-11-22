@@ -28,19 +28,19 @@ import java.util.List;
  * Pretty formatted table.
  */
 class PrettyTable {
-    private boolean skipHeaderWhenEmpty;
+    private final boolean skipHeaderWhenEmpty;
 
-    private char junctionChar;
-    private char horizontalChar;
-    private char verticalChar;
+    private final char junctionChar;
+    private final char horizontalChar;
+    private final char verticalChar;
 
-    private List<List<String>> rows;
-    private List<Integer> rowHeights;
-    private List<String> columnNames;
-    private List<Integer> columnWidths;
-    private List<HorizontalAlignment> columnAlignments;
+    private final List<List<String>> rows;
+    private final List<Integer> rowHeights;
+    private final List<String> columnNames;
+    private final List<Integer> columnWidths;
+    private final List<HorizontalAlignment> columnAlignments;
     private int headerHeight;
-    private int leftPad;
+    private final int leftPad;
 
     PrettyTable(final boolean skipHeaderWhenEmpty,
                 final char junctionChar,
