@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Sparse formatted table.
+ */
 class SparseTable extends PrettyTable {
 
     SparseTable(final boolean skipHeaderWhenEmpty,

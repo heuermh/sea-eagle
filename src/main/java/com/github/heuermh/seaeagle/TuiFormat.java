@@ -15,21 +15,32 @@
  */
 package com.github.heuermh.seaeagle;
 
+import static com.github.heuermh.seaeagle.Formatting.align;
+
 import java.io.IOException;
 
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TerminalTextUtils;
+
+import com.googlecode.lanterna.graphics.ThemeDefinition;
+
 import com.googlecode.lanterna.gui2.AsynchronousTextGUIThread;
 import com.googlecode.lanterna.gui2.BasicWindow;
 import com.googlecode.lanterna.gui2.BorderLayout;
+import com.googlecode.lanterna.gui2.EmptySpace;
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.SeparateTextGUIThread;
+import com.googlecode.lanterna.gui2.TextGUIGraphics;
 import com.googlecode.lanterna.gui2.Window;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 
+import com.googlecode.lanterna.gui2.table.DefaultTableCellRenderer;
+import com.googlecode.lanterna.gui2.table.DefaultTableHeaderRenderer;
 import com.googlecode.lanterna.gui2.table.Table;
 
 import com.googlecode.lanterna.screen.Screen;
@@ -43,12 +54,13 @@ import software.amazon.awssdk.services.athena.model.Datum;
 import software.amazon.awssdk.services.athena.model.Row;
 
 /**
- * Text-based UI (tui) format.
+ * Text- or terminal-based UI (tui) format.
  */
 class TuiFormat extends ResultsProcessor {
     private boolean seenHeader = false;
     private boolean seenHeaderRow = false;
     private Table<String> table;
+    private List<HorizontalAlignment> columnAlignments;
 
     TuiFormat() {
         // empty
@@ -57,11 +69,17 @@ class TuiFormat extends ResultsProcessor {
     @Override
     void columns(final List<ColumnInfo> columns) throws IOException {
         if (!seenHeader) {
+            columnAlignments = new ArrayList<>(columns.size());
             List<String> columnNames = new ArrayList<>(columns.size());
             for (ColumnInfo columnInfo : columns) {
                 columnNames.add(columnInfo.name());
+                HorizontalAlignment columnAlign = "varchar".equals(columnInfo.type()) ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
+                columnAlignments.add(columnAlign);
             }
             table = new Table<String>(columnNames.toArray(new String[0]));
+            table.setTableCellRenderer(new PrettyTableCellRenderer());
+            table.setTableHeaderRenderer(new PrettyTableHeaderRenderer());
+
             seenHeader = true;
         }
     }
@@ -105,16 +123,28 @@ class TuiFormat extends ResultsProcessor {
 
         WindowBasedTextGUI gui = new MultiWindowTextGUI(new SeparateTextGUIThread.Factory(), screen);
         BasicWindow window = new BasicWindow("sea-eagle");
+        // todo: Q and ESC should kill window
         //window.waitUntilClosed();
 
-        // todo: default styling is not so good
+        // todo: ENTER/RETURN should copy selected row?
+        // todo: terminal copy/paste should work on selected row
+
         window.setHints(Arrays.asList(Window.Hint.NO_DECORATIONS, Window.Hint.FULL_SCREEN, Window.Hint.FIT_TERMINAL_WINDOW));
 
         Panel panel = new Panel();
-        // todo: left panel for --left-pad
         panel.setLayoutManager(new BorderLayout());
+
+        EmptySpace top = new EmptySpace(new TerminalSize(0, 1));
+        top.setLayoutData(BorderLayout.Location.TOP);
+        panel.addComponent(top);
+
+        EmptySpace left = new EmptySpace(new TerminalSize(4, 0));
+        left.setLayoutData(BorderLayout.Location.LEFT);
+        panel.addComponent(left);
+
         table.setLayoutData(BorderLayout.Location.CENTER);
         panel.addComponent(table);
+
         window.setComponent(panel);
         gui.addWindow(window);
 
@@ -129,5 +159,88 @@ class TuiFormat extends ResultsProcessor {
         finally {
             screen.stopScreen();
         }
+    }
+
+    /**
+     * Pretty table cell renderer.
+     */
+    class PrettyTableCellRenderer extends DefaultTableCellRenderer<String> {
+        private int padding = 2;
+
+        @Override
+        public TerminalSize getPreferredSize(final Table<String> table,
+                                             final String cell,
+                                             final int columnIndex,
+                                             final int rowIndex) {
+            TerminalSize preferred =  super.getPreferredSize(table, cell, columnIndex, rowIndex);
+            TerminalSize padded = preferred.withRelativeColumns(padding * 2);
+            return padded;
+        }
+
+        /*
+          left and center alignment do not work
+        @Override
+        protected void render(final Table<String> table,
+                              final String cell,
+                              final int columnIndex,
+                              final int rowIndex,
+                              final boolean isSelected,
+                              final TextGUIGraphics textGUIGraphics) {
+
+            List<String> lines = Arrays.asList(getContent(cell));
+            int columnWidth = getPreferredSize(table, cell, columnIndex, rowIndex).getColumns();
+
+            List<String> alignedLines = align(lines, 1, columnWidth, columnAlignments.get(columnIndex), VerticalAlignment.TOP);
+
+            int rowCount = 0;
+            for (String line : alignedLines) {
+                textGUIGraphics.putString(0, rowCount++, line);
+            }
+        }
+        */
+    }
+
+    /**
+     * Pretty table header renderer.
+     */
+    class PrettyTableHeaderRenderer extends DefaultTableHeaderRenderer<String> {
+        private int padding = 2;
+
+        @Override
+        public TerminalSize getPreferredSize(final Table<String> table,
+                                             final String label,
+                                             final int columnIndex) {
+
+            /*
+              thread deadlock?
+            int maxWidth = 0;
+            for (int i = 0; i < table.getTableModel().getRowCount(); i++) {
+                int length = TerminalTextUtils.getColumnWidth(table.getTableModel().getCell(i, columnIndex));
+                if (maxWidth < length) {
+                    maxWidth = length;
+                }
+            }
+            TerminalSize preferred = new TerminalSize(maxWidth, 1);
+            */
+            TerminalSize preferred = super.getPreferredSize(table, label, columnIndex);
+            TerminalSize padded = preferred.withRelativeColumns(padding * 2);
+            return padded;
+        }
+
+        /*
+          width is invalid
+        @Override
+        public void drawHeader(final Table<String> table,
+                               final String label,
+                               final int index,
+                               final TextGUIGraphics textGUIGraphics) {
+
+            ThemeDefinition themeDefinition = table.getThemeDefinition();
+            textGUIGraphics.applyThemeStyle(themeDefinition.getCustom("HEADER", themeDefinition.getNormal()));
+
+            int columnWidth = getPreferredSize(table, "", index).getColumns();
+            textGUIGraphics.putString(0, 0, align(label, columnWidth, HorizontalAlignment.CENTER));
+        }
+        */
     }
 }

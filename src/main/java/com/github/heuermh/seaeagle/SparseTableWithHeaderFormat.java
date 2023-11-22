@@ -43,7 +43,7 @@ class SparseTableWithHeaderFormat extends TabDelimitedFormat {
         if (!readHeader) {
             for (ColumnInfo columnInfo : columns) {
                 String columnName = columnInfo.name();
-                String columnAlign = "varchar".equals(columnInfo.type()) ? "l" : "r";
+                HorizontalAlignment columnAlign = "varchar".equals(columnInfo.type()) ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
                 table.addColumn(columnName, columnAlign);
             }
             readHeader = true;

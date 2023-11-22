@@ -15,12 +15,18 @@
  */
 package com.github.heuermh.seaeagle;
 
+import static com.github.heuermh.seaeagle.Formatting.abbreviate;
+import static com.github.heuermh.seaeagle.Formatting.align;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Pretty formatted table.
+ */
 class PrettyTable {
     private boolean skipHeaderWhenEmpty;
 
@@ -32,7 +38,7 @@ class PrettyTable {
     private List<Integer> rowHeights;
     private List<String> columnNames;
     private List<Integer> columnWidths;
-    private List<String> columnAlignments;
+    private List<HorizontalAlignment> columnAlignments;
     private int headerHeight;
     private int leftPad;
 
@@ -50,7 +56,7 @@ class PrettyTable {
         this.rowHeights = new ArrayList<>();
         this.columnNames = new ArrayList<>();
         this.columnWidths = new ArrayList<>();
-        this.columnAlignments = new ArrayList<>();
+        this.columnAlignments = new ArrayList<HorizontalAlignment>();
         this.headerHeight = 1;
         this.leftPad = leftPad;
     }
@@ -95,24 +101,19 @@ class PrettyTable {
         rows.add(row);
     }
 
-    void addColumn(final String columnName, final String align) {
-        // todo: horizontal and vertical alignment enums
-        if (!Arrays.asList('l', 'c', 'r').contains(align.charAt(0))) {
-            throw new IllegalArgumentException("invalid column alignment: " + align);
-        }
-
+    void addColumn(final String columnName, final HorizontalAlignment alignment) {
         List<String> lines = Arrays.asList(columnName.split("\n"));
         int maxWidth = lines.stream().map(String::length).max(Integer::compareTo).orElse(0);
 
         columnWidths.add(maxWidth);
-        columnAlignments.add(align);
+        columnAlignments.add(alignment);
         columnNames.add(columnName);
         headerHeight = Math.max(lines.size(), headerHeight);
     }
     
     protected List<String> headerLines() {
-        List<String> aligns = Collections.nCopies(columnNames.size(), "c");
-        return formatRow(columnNames, headerHeight, aligns);
+        List<HorizontalAlignment> alignments = Collections.nCopies(columnNames.size(), HorizontalAlignment.CENTER);
+        return formatRow(columnNames, headerHeight, alignments);
     }
 
     protected List<String> formatHeader() {
@@ -145,7 +146,7 @@ class PrettyTable {
 
     private List<String> formatRow(final List<String> entries,
                                    final int rowHeight,
-                                   final List<String> columnAlignments) {
+                                   final List<HorizontalAlignment> columnAlignments) {
 
         List<String> printedRows = new ArrayList<>();
         Iterator<String> entryIterator = entries.iterator();
@@ -154,89 +155,27 @@ class PrettyTable {
             List<String> cells = new ArrayList<>();
             for (int j = 0; j < entries.size(); j++) {
                 String entry = entryIterator.next();
-                String align = columnAlignments.get(j);
+                HorizontalAlignment horizontalAlignment = columnAlignments.get(j);
                 int cellWidth = columnWidths.get(j);
-                // todo: specify valign
-                cells.add(formatCell(entry, cellWidth, rowHeight, align, "t"));
+                cells.add(formatCell(entry, cellWidth, rowHeight, horizontalAlignment, VerticalAlignment.TOP));
             }
             printedRows.add(verticalChar + String.join(String.valueOf(verticalChar), cells) + verticalChar);
         }
-
         return printedRows;
     }
 
     private String formatCell(final String entry,
                               final int cellWidth,
                               final int cellHeight,
-                              final String align,
-                              final String valign) {
+                              final HorizontalAlignment horizontalAlignment,
+                              final VerticalAlignment verticalAlignment) {
 
         List<String> entryLines = new ArrayList<>(Arrays.asList(abbreviate(entry, cellWidth).split("\n")));
-
         if (entryLines.size() > cellHeight) {
             throw new IllegalArgumentException("too many lines (" + entryLines.size() + ") for a cell of size " + cellHeight);
         }
 
-        List<String> topLines = new ArrayList<>();
-        List<String> bottomLines = new ArrayList<>();
-        switch (valign) {
-            case "t":
-                bottomLines = Collections.nCopies(cellHeight - entryLines.size(), " ".repeat(cellWidth + 2));
-                break;
-            case "c":
-                int[] paddings = centeredPadding(cellHeight, entryLines.size());
-                topLines = Collections.nCopies(paddings[0], " ".repeat(cellWidth + 2));
-                bottomLines = Collections.nCopies(paddings[1], " ".repeat(cellWidth + 2));
-                break;
-            case "b":
-                topLines = Collections.nCopies(cellHeight - entryLines.size(), " ".repeat(cellWidth + 2));
-                break;
-            default:
-                throw new IllegalArgumentException("unknown value for valign: " + align);
-        }
-
-        List<String> contentLines = new ArrayList<>();
-        for (String line : entryLines) {
-            switch (align) {
-                case "c":
-                    int[] paddings = centeredPadding(cellWidth, line.length());
-                    contentLines.add(" " + " ".repeat(paddings[0]) + line + " ".repeat(paddings[1]) + " ");
-                    break;
-                case "l":
-                case "r":
-                    String fmt = (align.equals("l") ? " %-" : " %") + cellWidth + "s ";
-                    contentLines.add(String.format(fmt, line));
-                    break;
-                default:
-                    throw new IllegalArgumentException("unknown alignment: " + align);
-            }
-        }
-
-        List<String> result = new ArrayList<>(topLines);
-        result.addAll(contentLines);
-        result.addAll(bottomLines);
-
-        return String.join("", result);
-    }
-
-    private int[] centeredPadding(final int interval, final int size) {
-        if (size > interval) {
-            throw new IllegalArgumentException("size " + size + " must be less than or equal to interval " + interval);
-        }
-
-        boolean sameParity = (interval % 2) == (size % 2);
-        int padding = (interval - size) / 2;
-
-        if (sameParity) {
-            return new int[]{ padding, padding };
-        }
-        else {
-            return new int[]{ padding, padding + 1 };
-        }
-    }
-
-    private String abbreviate(final String s, final int width) {
-        String suffix = ".".repeat(Math.min(width, 3));
-        return s.length() <= width ? s : s.substring(0, width - suffix.length()) + suffix;
+        List<String> alignedLines = align(entryLines, cellHeight, cellWidth, horizontalAlignment, verticalAlignment);
+        return String.join("", alignedLines);
     }
 }
