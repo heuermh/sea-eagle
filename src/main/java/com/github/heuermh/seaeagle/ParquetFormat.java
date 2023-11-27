@@ -53,7 +53,8 @@ class ParquetFormat extends ResultsProcessor {
     private static final String COPY_SQL = "COPY results TO '%s' (FORMAT 'PARQUET', CODEC 'ZSTD')";
 
     static final ImmutableMap<String, String> TYPE_NAMES = new ImmutableMap.Builder<String, String>()
-        .put("boolean", "BIT") // or boolean?
+        // Caused by: java.sql.SQLException: Not implemented Error: Unimplemented type for Parquet "BIT"
+        .put("boolean", "BOOLEAN") // or boolean?
         .put("tinyint", "TINYINT")
         .put("smallint", "SMALLINT")
         .put("integer", "INTEGER")
@@ -73,7 +74,7 @@ class ParquetFormat extends ResultsProcessor {
         .buildOrThrow();
 
     static final ImmutableMap<String, Integer> TYPES = new ImmutableMap.Builder<String, Integer>()
-        .put("boolean", Types.BIT)
+        .put("boolean", Types.BOOLEAN)
         .put("tinyint", Types.TINYINT)
         .put("smallint", Types.SMALLINT)
         .put("integer", Types.INTEGER)
