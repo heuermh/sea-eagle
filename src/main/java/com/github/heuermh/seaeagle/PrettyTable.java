@@ -83,7 +83,12 @@ class PrettyTable {
 
         List<String> splitRows = new ArrayList<>();
         for (String entry : row) {
-            splitRows.addAll(Arrays.asList(entry.split("\n")));
+            if (entry == null) {
+                splitRows.add("");
+            }
+            else {
+                splitRows.addAll(Arrays.asList(entry.split("\n")));
+            }
         }
         
         // ?? this is the max width after splitting by \n

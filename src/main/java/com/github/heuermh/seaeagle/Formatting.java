@@ -34,6 +34,9 @@ final class Formatting {
      * @return the specified value abbreviated to the specified width, if necessary
      */
     static String abbreviate(final String value, final int width) {
+        if (value == null) {
+            return "";
+        }
         String suffix = ".".repeat(Math.min(width, 3));
         return value.length() <= width ? value : value.substring(0, width - suffix.length()) + suffix;
     }
