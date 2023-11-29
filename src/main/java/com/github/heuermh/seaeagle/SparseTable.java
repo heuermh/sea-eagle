@@ -23,6 +23,7 @@ import java.util.List;
  * Sparse formatted table.
  */
 class SparseTable extends PrettyTable {
+    private final boolean skipHeader;
 
     SparseTable(final boolean skipHeader,
                 final boolean skipHeaderWhenEmpty,
@@ -30,14 +31,18 @@ class SparseTable extends PrettyTable {
                 final int leftPad) {
 
         super(skipHeader, skipHeaderWhenEmpty, ' ', horizontalChar, ' ', leftPad);
+        // sigh ...
+        this.skipHeader = skipHeader;
     }
 
 
     @Override
     protected List<String> formatHeader() {
         List<String> header = new ArrayList<>();
-        header.addAll(headerLines());
-        header.addAll(formatHrule());
+        if (!skipHeader) {
+            header.addAll(headerLines());
+            header.addAll(formatHrule());
+        }
         return header;
     }
 
