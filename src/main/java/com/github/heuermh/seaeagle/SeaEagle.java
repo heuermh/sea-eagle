@@ -37,8 +37,6 @@ import picocli.CommandLine.ScopeType;
 
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 
-import software.amazon.awssdk.regions.Region;
-
 import software.amazon.awssdk.services.athena.AthenaClient;
 
 import software.amazon.awssdk.services.athena.model.QueryExecutionContext;
@@ -84,9 +82,6 @@ public final class SeaEagle implements Callable<Integer> {
     @picocli.CommandLine.Option(names = { "-w", "--workgroup" })
     private String workgroup = DEFAULT_WORKGROUP;
 
-    @picocli.CommandLine.Option(names = { "-r", "--region" }, converter = RegionConverter.class)
-    private Region region = DEFAULT_REGION;
-
     @picocli.CommandLine.Option(names = { "-b", "--output-location" })
     private String outputLocation;
 
@@ -122,9 +117,8 @@ public final class SeaEagle implements Callable<Integer> {
 
     private final HistoryFile historyFile = new HistoryFile();
 
-    static final Region DEFAULT_REGION = Region.US_WEST_2;
     static final String DEFAULT_WORKGROUP = "primary";
-    static final long DEFAULT_POLLING_INTERVAL = 5000L;
+    static final long DEFAULT_POLLING_INTERVAL = 250L;
 
     static final Logger logger = LoggerFactory.getLogger(SeaEagle.class);
 
@@ -143,15 +137,14 @@ public final class SeaEagle implements Callable<Integer> {
         }
 
         // create athena client
-        logger.info("Creating Athena client for region {}", region);
+        logger.info("Creating Athena client with profile credentials provider");
         AthenaClient athenaClient = AthenaClient.builder()
-                .region(region)
-                .credentialsProvider(ProfileCredentialsProvider.create())
-                .build();
+            .credentialsProvider(ProfileCredentialsProvider.create())
+            .build();
 
         //
         // submit query and poll for results
-        logger.info("Submitting SQL query to Athena with database {}", database);
+        logger.info("Submitting SQL query to Athena");
 
         String queryExecutionId = null;
         try {
@@ -249,8 +242,8 @@ public final class SeaEagle implements Callable<Integer> {
 
     void pollUntilComplete(final AthenaClient athenaClient, final String queryExecutionId) throws InterruptedException, CanceledException, FailedException {
         GetQueryExecutionRequest request = GetQueryExecutionRequest.builder()
-                .queryExecutionId(queryExecutionId)
-                .build();
+            .queryExecutionId(queryExecutionId)
+            .build();
 
         boolean running = true;
         while (running) {
@@ -278,8 +271,8 @@ public final class SeaEagle implements Callable<Integer> {
     void processResults(final AthenaClient athenaClient, final String queryExecutionId) throws AthenaException, IOException {
         try (ResultsProcessor processor = createProcessor()) {
             GetQueryResultsRequest request = GetQueryResultsRequest.builder()
-                    .queryExecutionId(queryExecutionId)
-                    .build();
+                .queryExecutionId(queryExecutionId)
+                .build();
 
             GetQueryResultsIterable results = athenaClient.getQueryResultsPaginator(request);
             for (GetQueryResultsResponse result : results) {
