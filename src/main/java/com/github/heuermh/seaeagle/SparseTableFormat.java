@@ -34,12 +34,12 @@ class SparseTableFormat extends TabDelimitedFormat {
     private final SparseTable table;
 
     SparseTableFormat(final Path resultsPath, final int leftPad) {
-        this(resultsPath, leftPad, true);
+        this(resultsPath, leftPad, true, true);
     }
 
-    protected SparseTableFormat(final Path resultsPath, final int leftPad, final boolean skipHeaderWhenEmpty) {
+    protected SparseTableFormat(final Path resultsPath, final int leftPad, final boolean skipHeader, final boolean skipHeaderWhenEmpty) {
         super(resultsPath);
-        table = new SparseTable(skipHeaderWhenEmpty, '-', leftPad);
+        table = new SparseTable(skipHeader, skipHeaderWhenEmpty, '-', leftPad);
     }
 
     @Override

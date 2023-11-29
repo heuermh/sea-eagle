@@ -24,11 +24,12 @@ import java.util.List;
  */
 class SparseTable extends PrettyTable {
 
-    SparseTable(final boolean skipHeaderWhenEmpty,
+    SparseTable(final boolean skipHeader,
+                final boolean skipHeaderWhenEmpty,
                 final char horizontalChar,
                 final int leftPad) {
 
-        super(skipHeaderWhenEmpty, ' ', horizontalChar, ' ', leftPad);
+        super(skipHeader, skipHeaderWhenEmpty, ' ', horizontalChar, ' ', leftPad);
     }
 
 

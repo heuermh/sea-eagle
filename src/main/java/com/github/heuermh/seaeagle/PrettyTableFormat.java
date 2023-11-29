@@ -34,12 +34,12 @@ class PrettyTableFormat extends TabDelimitedFormat {
     private final PrettyTable table;
 
     PrettyTableFormat(final Path resultsPath, final int leftPad) {
-        this(resultsPath, leftPad, true);
+        this(resultsPath, leftPad, true, true);
     }
 
-    protected PrettyTableFormat(final Path resultsPath, final int leftPad, final boolean skipHeaderWhenEmpty) {
+    protected PrettyTableFormat(final Path resultsPath, final int leftPad, final boolean skipHeader, final boolean skipHeaderWhenEmpty) {
         super(resultsPath);
-        table = new PrettyTable(skipHeaderWhenEmpty, '+', '-', '|', leftPad);
+        table = new PrettyTable(skipHeader, skipHeaderWhenEmpty, '+', '-', '|', leftPad);
     }
 
     @Override

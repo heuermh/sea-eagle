@@ -23,6 +23,6 @@ import java.nio.file.Path;
 class SparseTableWithHeaderFormat extends SparseTableFormat {
 
     SparseTableWithHeaderFormat(final Path resultsPath, final int leftPad) {
-        super(resultsPath, leftPad, false);
+        super(resultsPath, leftPad, false, false);
     }
 }

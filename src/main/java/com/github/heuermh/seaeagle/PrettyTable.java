@@ -28,6 +28,7 @@ import java.util.List;
  * Pretty formatted table.
  */
 class PrettyTable {
+    private final boolean skipHeader;
     private final boolean skipHeaderWhenEmpty;
 
     private final char junctionChar;
@@ -42,12 +43,14 @@ class PrettyTable {
     private int headerHeight;
     private final int leftPad;
 
-    PrettyTable(final boolean skipHeaderWhenEmpty,
+    PrettyTable(final boolean skipHeader,
+                final boolean skipHeaderWhenEmpty,
                 final char junctionChar,
                 final char horizontalChar,
                 final char verticalChar,
                 final int leftPad) {
 
+        this.skipHeader = skipHeader;
         this.skipHeaderWhenEmpty = skipHeaderWhenEmpty;
         this.junctionChar = junctionChar;
         this.horizontalChar = horizontalChar;
@@ -123,8 +126,10 @@ class PrettyTable {
 
     protected List<String> formatHeader() {
         List<String> header = new ArrayList<>();
-        header.addAll(formatHrule());
-        header.addAll(headerLines());
+        if (!skipHeader) {
+            header.addAll(formatHrule());
+            header.addAll(headerLines());
+        }
         header.addAll(formatHrule());
         return header;
     }
