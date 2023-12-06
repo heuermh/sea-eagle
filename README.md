@@ -26,7 +26,7 @@ OPTIONS
   -d, --database=<database>                        Database name, if any.
   -w, --workgroup=<workgroup>                      Workgroup, default primary.
   -b, --output-location=<outputLocation>           Output location, if workgroup is not provided.
-  -n, --polling-interval=<pollingInterval>         Query status polling interval, default 5,000 ms.
+  -n, --polling-interval=<pollingInterval>         Query status polling interval, default 250 ms.
       --skip-header                                Skip writing header to results.
       --skip-history                               Skip writing query to history file.
   -q, --query=<query>                              Inline SQL query, if any.
