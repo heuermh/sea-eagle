@@ -100,8 +100,8 @@ public final class SeaEagle implements Callable<Integer> {
     @picocli.CommandLine.Option(names = { "-i", "--query-path" })
     private Path queryPath;
 
-    @picocli.CommandLine.Option(names = { "-p", "--execution-parameters" })
-    private List<String> executionParameters; // how are these provided?
+    @picocli.CommandLine.Option(names = { "-p", "--parameters", "--execution-parameters" })
+    private List<String> executionParameters;
 
     @picocli.CommandLine.Option(names = { "-o", "--results-path" })
     private Path resultsPath;
