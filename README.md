@@ -2,7 +2,7 @@
 
 Command line tools for [AWS Athena](https://aws.amazon.com/athena/).
 
-### Hacking sea-agle
+### Hacking sea-eagle
 
 Install
 
