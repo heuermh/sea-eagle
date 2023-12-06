@@ -1,6 +1,6 @@
 # sea-eagle
 
-Command line tools for [AWS Athena]().
+Command line tools for [AWS Athena](https://aws.amazon.com/athena/).
 
 ### Hacking sea-agle
 
@@ -41,4 +41,40 @@ OPTIONS
 COMMANDS
   help                 Display help information about the specified command.
   generate-completion  Generate bash/zsh completion script for se.
+```
+
+For example
+```bash
+$ se \
+  --database database \
+  --workgroup workgroup \
+  --query "select foo, bar, baz from example" \
+  --format sparse
+
+      foo       bar       baz
+   --------- --------- ---------
+    1499494   2354616   5560703
+     516330    758111   1623718
+     113663    192870    137600
+    1028323    960709    850306
+      93400    106270    222614
+     122802    205962    126434
+     353471    559598   1481814
+        189      5942     42922
+      75050     82266     23910
+     250471    360182   1020279
+      40296     46812    118579
+     118357    150441     95300
+     201463    440648    366368
+     112916    133982     57178
+     100463    133405     78405
+      85073    142120    464772
+      36545     39175    108751
+        141        99       105
+     206530    273974    140601
+     117219    128936    306981
+         68      7640      8562
+     220511   1095658    956314
+      63979    161020    137316
+     272094    366378   1056719
 ```
