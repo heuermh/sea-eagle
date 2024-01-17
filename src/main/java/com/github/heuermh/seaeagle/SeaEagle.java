@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import java.nio.file.Path;
 
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.concurrent.Callable;
@@ -112,15 +113,15 @@ public final class SeaEagle implements Callable<Integer> {
     @picocli.CommandLine.Option(names = { "--left-pad" })
     private int leftPad = 2;
 
-    // todo: verbose to change log level at runtime
-
+    @picocli.CommandLine.Option(names = { "--verbose" })
+    private boolean verbose;
 
     private final HistoryFile historyFile = new HistoryFile();
 
     static final String DEFAULT_WORKGROUP = "primary";
     static final long DEFAULT_POLLING_INTERVAL = 250L;
 
-    static final Logger logger = LoggerFactory.getLogger(SeaEagle.class);
+    static Logger logger;
 
     @Override
     public Integer call() throws Exception {
@@ -329,6 +330,13 @@ public final class SeaEagle implements Callable<Integer> {
      * @param args command line args
      */
     public static void main(final String[] args) {
+
+        // cheat to set system property before initializing logger
+        if (Arrays.asList(args).contains("--verbose")) {
+            System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
+        }
+        logger = LoggerFactory.getLogger(SeaEagle.class);
+
         System.exit(new CommandLine(new SeaEagle()).execute(args));
     }
 }
