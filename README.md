@@ -35,6 +35,7 @@ OPTIONS
   -o, --results-path=<resultsPath>                 Query results path, default stdout.
   -f, --format, --results-format=<resultsFormat>   Query results format { pretty, sparse, text, parquet }, default text.
       --left-pad=<leftPad>                         Left pad query results, default 2 for pretty and sparse formats.
+      --verbose                                    Show additional logging messages.
   -h, --help                                       Show this help message and exit.
   -V, --version                                    Print version information and exit.
 
