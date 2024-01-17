@@ -21,5 +21,5 @@ package com.github.heuermh.seaeagle;
 enum VerticalAlignment {
     TOP,
     CENTER,
-    BOTTOM;
+    BOTTOM
 }

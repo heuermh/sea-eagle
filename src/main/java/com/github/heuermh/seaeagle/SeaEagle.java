@@ -147,7 +147,7 @@ public final class SeaEagle implements Callable<Integer> {
         // submit query and poll for results
         logger.info("Submitting SQL query to Athena");
 
-        String queryExecutionId = null;
+        String queryExecutionId;
         try {
             queryExecutionId = submitAthenaQuery(athenaClient);
         }

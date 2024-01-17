@@ -15,8 +15,6 @@
  */
 package com.github.heuermh.seaeagle;
 
-import static com.github.heuermh.seaeagle.Formatting.align;
-
 import java.io.IOException;
 
 import java.util.Arrays;
@@ -24,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TerminalTextUtils;
-
-import com.googlecode.lanterna.graphics.ThemeDefinition;
 
 import com.googlecode.lanterna.gui2.AsynchronousTextGUIThread;
 import com.googlecode.lanterna.gui2.BasicWindow;
@@ -35,7 +30,6 @@ import com.googlecode.lanterna.gui2.EmptySpace;
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.SeparateTextGUIThread;
-import com.googlecode.lanterna.gui2.TextGUIGraphics;
 import com.googlecode.lanterna.gui2.Window;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 
@@ -164,7 +158,7 @@ class TuiFormat extends ResultsProcessor {
     /**
      * Pretty table cell renderer.
      */
-    class PrettyTableCellRenderer extends DefaultTableCellRenderer<String> {
+    static class PrettyTableCellRenderer extends DefaultTableCellRenderer<String> {
         private int padding = 2;
 
         @Override
@@ -202,7 +196,7 @@ class TuiFormat extends ResultsProcessor {
     /**
      * Pretty table header renderer.
      */
-    class PrettyTableHeaderRenderer extends DefaultTableHeaderRenderer<String> {
+    static class PrettyTableHeaderRenderer extends DefaultTableHeaderRenderer<String> {
         private int padding = 2;
 
         @Override

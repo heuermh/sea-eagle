@@ -21,5 +21,5 @@ package com.github.heuermh.seaeagle;
 enum HorizontalAlignment {
     LEFT,
     CENTER,
-    RIGHT;
+    RIGHT
 }
