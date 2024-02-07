@@ -103,7 +103,7 @@ $ se \
 $ se \
     ... \
     --skip-history \
-    --query "SELECT * FROM table where foo = 'top secret!!' LIMIT 4"
+    --query "SELECT * FROM table WHERE foo = 'top secret!!' LIMIT 4"
 
 $ cat ~/.se_history
 SELECT * FROM table LIMIT 4
@@ -197,7 +197,7 @@ $ se \
 ```sql
 $ duckdb
 
-D select * from read_parquet("results.parquet");
+D SELECT * FROM read_parquet("results.parquet");
 ┌─────────┬─────────┬─────────┐
 │   foo   │   bar   │   baz   │
 │  int64  │  int64  │  int64  │
