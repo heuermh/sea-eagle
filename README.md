@@ -44,13 +44,109 @@ COMMANDS
   generate-completion  Generate bash/zsh completion script for se.
 ```
 
-For example
+
+### SQL queries
+
+SQL queries can be provided inline via the `-q`/`--query` option
 ```bash
 $ se \
-  --database database \
-  --workgroup workgroup \
-  --query "select foo, bar, baz from example" \
-  --format sparse
+    ... \
+    --query "SELECT * FROM table LIMIT 4"
+```
+
+By default the SQL query is read from `stdin`
+```bash
+$ echo "SELECT * FROM table LIMIT 4" | se \
+    ... \
+```
+
+Or the SQL query can be read from a file via the `-i`/`--query-path` option
+```bash
+$ echo "SELECT * FROM table LIMIT 4" > query.sql
+
+$ se \
+    ... \
+    --query-path query.sql
+```
+
+
+### Execution parameters
+
+SQL queries may contain `?`-style execution parameters to be substituted server side
+```bash
+$ se \
+    ... \
+    --query "SELECT * FROM table WHERE foo = ? AND bar > ? LIMIT 4" \
+    --execution-parameters baz \
+    --execution-parameters 100000
+```
+
+Alternatively, variable substition can be done via e.g. `envsubst` on the client side
+```bash
+$ echo "SELECT * FROM table WHERE foo = '$FOO' LIMIT 4" > query.sql
+
+$ export FOO=baz
+
+$ envsubst < query.sql | se \
+    ... \
+```
+
+
+### SQL query history file
+
+SQL queries are written to a history file `~/.se_history`, unless `--skip-history` flag is present
+```bash
+$ se \
+    ... \
+    --query "SELECT * FROM table LIMIT 4"
+
+$ se \
+    ... \
+    --skip-history \
+    --query "SELECT * FROM table where foo = 'top secret!!' LIMIT 4"
+
+$ cat ~/.se_history
+SELECT * FROM table LIMIT 4
+```
+
+
+### Output formats
+
+#### Text and display formats
+
+By default, results are written to `stdout` in tab-delimited text format.
+
+This allows for easy integration with command line tools such as `cut`, `grep`, `awk`, `sed`,
+`uniq`, etc. for post-processing.
+
+```bash
+$ se \
+    ... \
+    --query "SELECT * FROM table LIMIT 2"
+
+foo	bar	baz
+2088090022	185762	232298
+2044078009	113652	85962
+
+
+$ se \
+    ... \
+    --query "SELECT * FROM table LIMIT 4" \
+    --skip-header | cut -f 4 | sort -n
+
+26603
+67310
+116988
+164738
+```
+
+
+Results may be formatted for display in the terminal, in sparse
+```bash
+$ se \
+    ... \
+    --query "SELECT * FROM table LIMIT 4" \
+    --format sparse
 
       foo       bar       baz
    --------- --------- ---------
@@ -58,34 +154,14 @@ $ se \
      516330    758111   1623718
      113663    192870    137600
     1028323    960709    850306
-      93400    106270    222614
-     122802    205962    126434
-     353471    559598   1481814
-        189      5942     42922
-      75050     82266     23910
-     250471    360182   1020279
-      40296     46812    118579
-     118357    150441     95300
-     201463    440648    366368
-     112916    133982     57178
-     100463    133405     78405
-      85073    142120    464772
-      36545     39175    108751
-        141        99       105
-     206530    273974    140601
-     117219    128936    306981
-         68      7640      8562
-     220511   1095658    956314
-      63979    161020    137316
-     272094    366378   1056719
 ```
 
+and pretty formats
 ```bash
 $ se \
-  --database database \
-  --workgroup workgroup \
-  --query "select foo, bar, baz from example" \
-  --format pretty
+    ... \
+    --query "SELECT * FROM table LIMIT 4" \
+    --format pretty
 
   +---------+---------+---------+
   |   foo   |   bar   |   baz   |
@@ -94,39 +170,34 @@ $ se \
   |   17560 |   40360 |   32204 |
   |      84 |    8273 |   47681 |
   |   52383 |  100406 |   86338 |
-  |   60978 |  116895 |   92954 |
-  |  582231 |  624177 |  873897 |
-  |   60105 |   96224 |   70939 |
-  |   26706 |   29724 |   61980 |
-  |   71041 |   85657 |   44456 |
-  |    1092 |    1090 |    2161 |
-  |   45114 |   50299 |  100645 |
-  |      36 |   11675 |   90045 |
-  |  914478 |  943877 | 1812353 |
-  |  331784 |  428479 | 1207972 |
-  |    2804 |    2806 |    5868 |
-  |  112934 |  158499 |  453591 |
-  |   78382 |  117840 |   81177 |
-  |  601579 |  726169 | 1377316 |
-  |   66397 |  586665 |  642583 |
-  |  162038 |  479360 |  414506 |
-  |     754 |     700 |    1374 |
-  |    8378 |   29904 |   19937 |
-  |   78669 |  164224 |  107699 |
-  |  495637 |  668429 | 1095699 |
   +---------+---------+---------+
 ```
 
+Results may be written to a file (and optionally compressed) via the `-o`/`--results-path` option
 ```bash
 $ se \
-  --database database \
-  --workgroup workgroup \
-  --query "select foo, bar, baz from example" \
-  --results-format parquet \
-  --results-path foo.parquet
+    ... \
+    --query "SELECT * FROM table LIMIT 4" \
+    --results-path results.txt.zstd
+```
 
+
+#### Parquet format
+
+Finally, results may be written out to a local Parquet file
+```bash
+$ se \
+    ... \
+    --query "SELECT * FROM table LIMIT 4" \
+    --format parquet
+    --results-path results.parquet
+```
+
+...which can easily be loaded into e.g. [duckdb](https://duckdb.org/) for further post-processing.
+```sql
 $ duckdb
-D select * from read_parquet("foo.parquet");
+
+D select * from read_parquet("results.parquet");
 ┌─────────┬─────────┬─────────┐
 │   foo   │   bar   │   baz   │
 │  int64  │  int64  │  int64  │
@@ -135,27 +206,7 @@ D select * from read_parquet("foo.parquet");
 │ 1427967 │ 1990921 │ 3779556 │
 │   66473 │   97877 │   73903 │
 │    7767 │    7766 │    5888 │
-│  592539 │  680396 │ 1316416 │
-│   55862 │  127827 │   86968 │
-│  312925 │  379713 │  668032 │
-│   53477 │   99411 │  236360 │
-│  214155 │  240226 │  472594 │
-│     433 │    2264 │   16631 │
-│   66180 │  122619 │   90052 │
-│   49876 │   58304 │  126477 │
-│   28205 │   31872 │   97107 │
-│   68561 │  129016 │  471649 │
-│  163444 │  200285 │  450191 │
-│  557512 │  700447 │ 1267954 │
-│  884122 │  996617 │ 1747037 │
-│  359649 │  367325 │  387756 │
-│  138393 │  238236 │  479819 │
-│   42038 │   57246 │  173395 │
-│   85615 │  160421 │  116326 │
-│   59027 │  114297 │   91653 │
-│  509225 │  938199 │ 1455539 │
-│  652027 │ 1016476 │ 1045162 │
 ├─────────┴─────────┴─────────┤
-│ 24 rows           3 columns │
+│ 4 rows            3 columns │
 └─────────────────────────────┘
 ```
