@@ -30,9 +30,9 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.23.19</awssdk.version>
+    <awssdk.version>2.24.1</awssdk.version>
     <dsh-compress.version>1.6.7</dsh-compress.version>
-    <duckdb.version>0.9.2</duckdb.version>
+    <duckdb.version>0.10.0</duckdb.version>
     <jdk.version>11</jdk.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
     <maven.enforcer.maven-version>[3.1.1,)</maven.enforcer.maven-version>
