@@ -2,7 +2,7 @@
 
 Command line tools for [AWS Athena](https://aws.amazon.com/athena/).
 
-### Hacking sea-eagle
+## Hacking sea-eagle
 
 Install
 
@@ -14,7 +14,13 @@ To build
 $ mvn package
 
 $ export PATH=$PATH:`pwd`/target/appassembler/bin
+```
 
+## Using sea-eagle
+
+### Usage
+
+```bash
 $ se --help
 USAGE
   se [-hV] [--skip-header] [--skip-history] [-b=<outputLocation>] [-c=<catalog>] [-d=<database>] [-f=<resultsFormat>]
@@ -42,6 +48,19 @@ OPTIONS
 COMMANDS
   help                 Display help information about the specified command.
   generate-completion  Generate bash/zsh completion script for se.
+```
+
+
+### Environment variables
+
+Note the `catalog`, `database`, `workgroup`, and `output-location` options can also be specified by
+environment variables `SE_CATALOG`, `SE_DATABASE`, `SE_WORKGROUP`, and `SE_OUTPUT_LOCATION`, respectively
+```bash
+$ export SE_CATALOG=catalog
+
+$ SE_WORKGROUP=workgroup \
+    se \
+      ... \
 ```
 
 
