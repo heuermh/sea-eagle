@@ -73,17 +73,16 @@ import software.amazon.awssdk.services.athena.paginators.GetQueryResultsIterable
 )
 public final class SeaEagle implements Callable<Integer> {
 
-    // todo: consider pulling these out of a config file
-    @picocli.CommandLine.Option(names = { "-c", "--catalog" })
+    @picocli.CommandLine.Option(names = { "-c", "--catalog" }, defaultValue = "${SE_CATALOG}")
     private String catalog;
 
-    @picocli.CommandLine.Option(names = { "-d", "--database" })
+    @picocli.CommandLine.Option(names = { "-d", "--database" }, defaultValue = "${SE_DATABASE}")
     private String database;
 
-    @picocli.CommandLine.Option(names = { "-w", "--workgroup" })
-    private String workgroup = DEFAULT_WORKGROUP;
+    @picocli.CommandLine.Option(names = { "-w", "--workgroup" }, defaultValue = "${SE_WORKGROUP:-primary}")
+    private String workgroup;
 
-    @picocli.CommandLine.Option(names = { "-b", "--output-location" })
+    @picocli.CommandLine.Option(names = { "-b", "--output-location" }, defaultValue = "${SE_OUTPUT_LOCATION}")
     private String outputLocation;
 
     @picocli.CommandLine.Option(names = { "-n", "--polling-interval" })
@@ -118,7 +117,6 @@ public final class SeaEagle implements Callable<Integer> {
 
     private final HistoryFile historyFile = new HistoryFile();
 
-    static final String DEFAULT_WORKGROUP = "primary";
     static final long DEFAULT_POLLING_INTERVAL = 250L;
 
     static Logger logger;
