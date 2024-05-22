@@ -6,7 +6,7 @@ Command line tools for [AWS Athena](https://aws.amazon.com/athena/).
 
 Install
 
- * JDK 11 or later, https://openjdk.java.net
+ * JDK 17 or later, https://openjdk.java.net
  * Apache Maven 3.3.9 or later, https://maven.apache.org
 
 To build
