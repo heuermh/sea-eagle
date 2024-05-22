@@ -33,10 +33,10 @@
     <awssdk.version>2.25.57</awssdk.version>
     <dsh-compress.version>1.6.11</dsh-compress.version>
     <duckdb.version>0.10.2</duckdb.version>
-    <jdk.version>11</jdk.version>
+    <jdk.version>17</jdk.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
     <maven.enforcer.maven-version>[3.1.1,)</maven.enforcer.maven-version>
-    <maven.enforcer.jdk-version>[11,)</maven.enforcer.jdk-version>
+    <maven.enforcer.jdk-version>[17,)</maven.enforcer.jdk-version>
     <picocli.version>4.7.5</picocli.version>
     <slf4j.version>1.7.36</slf4j.version>
   </properties>
