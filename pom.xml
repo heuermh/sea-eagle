@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.dishevelled</groupId>
     <artifactId>dsh-parent</artifactId>
-    <version>43</version>
+    <version>44</version>
   </parent>
   <groupId>com.github.heuermh.seaeagle</groupId>
   <artifactId>sea-eagle</artifactId>
@@ -30,14 +30,14 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.25.57</awssdk.version>
+    <awssdk.version>2.25.60</awssdk.version>
     <dsh-compress.version>1.6.11</dsh-compress.version>
-    <duckdb.version>0.10.2</duckdb.version>
+    <duckdb.version>0.10.3</duckdb.version>
     <jdk.version>17</jdk.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
     <maven.enforcer.maven-version>[3.1.1,)</maven.enforcer.maven-version>
     <maven.enforcer.jdk-version>[17,)</maven.enforcer.jdk-version>
-    <picocli.version>4.7.5</picocli.version>
+    <picocli.version>4.7.6</picocli.version>
     <slf4j.version>1.7.36</slf4j.version>
   </properties>
   <dependencyManagement>
