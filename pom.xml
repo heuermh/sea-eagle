@@ -30,7 +30,7 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.25.60</awssdk.version>
+    <awssdk.version>2.25.65</awssdk.version>
     <dsh-compress.version>1.6.11</dsh-compress.version>
     <duckdb.version>0.10.3</duckdb.version>
     <jdk.version>17</jdk.version>
