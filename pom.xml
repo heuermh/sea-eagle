@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.dishevelled</groupId>
     <artifactId>dsh-parent</artifactId>
-    <version>44</version>
+    <version>45</version>
   </parent>
   <groupId>com.github.heuermh.seaeagle</groupId>
   <artifactId>sea-eagle</artifactId>
@@ -31,7 +31,7 @@
   </issueManagement>
   <properties>
     <awssdk.version>2.25.67</awssdk.version>
-    <dsh-compress.version>1.6.11</dsh-compress.version>
+    <dsh-compress.version>1.6.12</dsh-compress.version>
     <duckdb.version>1.0.0</duckdb.version>
     <jdk.version>17</jdk.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
