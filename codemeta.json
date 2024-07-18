@@ -1,0 +1,39 @@
+{
+  "name": "sea-eagle",
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "applicationCategory": "Data base user interface and query",
+  "author": [
+    {
+      "familyName": "Heuer",
+      "id": "_:author_1",
+      "givenName": "Michael",
+      "type": "Person"
+    }
+  ],
+  "codeRepository": "https://github.com/heuermh/sea-eagle",
+  "dateCreated": "2023-11-03",
+  "dateModified": "2024-06-07",
+  "datePublished": "2024-06-07",
+  "description": "Command line tools for AWS Athena.",
+  "developmentStatus": "active",
+  "downloadUrl": "https://github.com/heuermh/sea-eagle/releases/tag/sea-eagle-0.6",
+  "issueTracker": "https://github.com/heuermh/sea-eagle/issues",
+  "keywords": [
+    "athena",
+    "cli",
+    "command-line",
+    "command-line-tool",
+    "tui"
+  ],
+  "license": "https://spdx.org/licenses/Apache-2.0",
+  "operatingSystem": [],
+  "programmingLanguage": [
+    "Java"
+  ],
+  "relatedLink": [],
+  "runtimePlatform": [],
+  "schema:releaseNotes": "**Full Changelog**: https://github.com/heuermh/sea-eagle/compare/sea-eagle-0.5...sea-eagle-0.6",
+  "softwareRequirements": [],
+  "version": "sea-eagle-0.6",
+  "type": "SoftwareSourceCode"
+}
