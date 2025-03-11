@@ -1,11 +1,11 @@
 {
   "name": "sea-eagle",
-  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@context": "https://w3id.org/codemeta/3.0",
   "applicationCategory": "Data base user interface and query",
   "author": [
     {
       "familyName": "Heuer",
-      "id": "_:author_1",
+      "id": "https://orcid.org/0000-0002-9052-6000",
       "givenName": "Michael",
       "type": "Person"
     }
@@ -26,14 +26,10 @@
     "tui"
   ],
   "license": "https://spdx.org/licenses/Apache-2.0",
-  "operatingSystem": [],
   "programmingLanguage": [
     "Java"
   ],
-  "relatedLink": [],
-  "runtimePlatform": [],
   "schema:releaseNotes": "**Full Changelog**: https://github.com/heuermh/sea-eagle/compare/sea-eagle-0.5...sea-eagle-0.6",
-  "softwareRequirements": [],
   "version": "sea-eagle-0.6",
   "type": "SoftwareSourceCode"
 }
