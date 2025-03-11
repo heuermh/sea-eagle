@@ -14,5 +14,6 @@ keywords:
   - tui
 license: Apache-2.0
 repository-code: https://github.com/heuermh/sea-eagle
-date-released: 2024-06-07
-version: sea-eagle-0.6
+date-released: '2025-03-11'
+version: '0.8'
+doi: 10.5281/zenodo.15009020
