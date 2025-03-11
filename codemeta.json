@@ -12,7 +12,7 @@
   ],
   "codeRepository": "https://github.com/heuermh/sea-eagle",
   "dateCreated": "2023-11-03",
-  "dateModified": "2024-06-07",
+  "dateModified": "2025-03-11",
   "datePublished": "2024-06-07",
   "description": "Command line tools for AWS Athena.",
   "developmentStatus": "active",
@@ -30,6 +30,7 @@
     "Java"
   ],
   "schema:releaseNotes": "**Full Changelog**: https://github.com/heuermh/sea-eagle/compare/sea-eagle-0.5...sea-eagle-0.6",
-  "version": "sea-eagle-0.6",
-  "type": "SoftwareSourceCode"
+  "version": "0.8",
+  "type": "SoftwareSourceCode",
+  "identifier": "10.5281/zenodo.15009020"
 }
