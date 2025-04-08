@@ -88,6 +88,9 @@ public final class SeaEagle implements Callable<Integer> {
     @picocli.CommandLine.Option(names = { "-n", "--polling-interval" })
     private long pollingInterval = DEFAULT_POLLING_INTERVAL;
 
+    @picocli.CommandLine.Option(names = { "--preserve-whitespace" })
+    private boolean preserveWhitespace;
+
     @picocli.CommandLine.Option(names = { "--skip-header" })
     private boolean skipHeader;
 
@@ -193,14 +196,14 @@ public final class SeaEagle implements Callable<Integer> {
             while (reader.ready()) {
                 String line = reader.readLine();
                 sb.append(line);
-                sb.append(" ");
+                sb.append(preserveWhitespace ? "\n" : " ");
             }
         }
         catch (IOException e) {
             logger.error("Unable to read SQL from {}", queryPath == null ? "<stdin>" : queryPath);
             throw e;
         }
-        return sb.toString().trim().replace("\\s+", " ");
+        return preserveWhitespace ? sb.toString().trim() : sb.toString().trim().replaceAll("\\s{2,}", " ");
     }
 
     String submitAthenaQuery(final AthenaClient athenaClient) throws AthenaException {
