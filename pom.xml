@@ -30,9 +30,9 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.38.1</awssdk.version>
+    <awssdk.version>2.39.5</awssdk.version>
     <dsh-compress.version>1.8.1</dsh-compress.version>
-    <duckdb.version>1.4.1.0</duckdb.version>
+    <duckdb.version>1.4.2.0</duckdb.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
     <picocli.version>4.7.7</picocli.version>
     <slf4j.version>1.7.36</slf4j.version>
