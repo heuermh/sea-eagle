@@ -25,7 +25,7 @@ public final class About implements IVersionProvider {
     private static final String BUILD_TIMESTAMP = "${build-helper-maven-plugin.build.timestamp}";
     private static final String COMMIT = "${git.commit.id}";
     private static final String DOI = "10.5281/zenodo.15009019";
-    private static final String COPYRIGHT = "Copyright (c) 2023-2025 held jointly by the individual authors.";
+    private static final String COPYRIGHT = "Copyright (c) 2023-2026 held jointly by the individual authors.";
     private static final String LICENSE = "Licensed Apache License 2.0.";
     private static final String VERSION = "${project.version}";
 
