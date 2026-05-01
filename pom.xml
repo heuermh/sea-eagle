@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.dishevelled</groupId>
     <artifactId>dsh-parent</artifactId>
-    <version>56</version>
+    <version>58-SNAPSHOT</version>
   </parent>
   <groupId>com.github.heuermh.seaeagle</groupId>
   <artifactId>sea-eagle</artifactId>
@@ -30,19 +30,28 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.42.15</awssdk.version>
-    <dsh-compress.version>1.8.1</dsh-compress.version>
-    <duckdb.version>1.5.0.0</duckdb.version>
+    <awssdk.version>2.43.2</awssdk.version>
+    <dsh-compress.version>1.8.2</dsh-compress.version>
+    <duckdb.version>1.5.2.1</duckdb.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
     <picocli.version>4.7.7</picocli.version>
     <slf4j.version>1.7.36</slf4j.version>
+    <tamboui.version>0.2.0-SNAPSHOT</tamboui.version>
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>com.googlecode.lanterna</groupId>
         <artifactId>lanterna</artifactId>
         <version>${lanterna.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>dev.tamboui</groupId>
+        <artifactId>tamboui-bom</artifactId>
+        <version>${tamboui.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>info.picocli</groupId>
@@ -85,6 +94,14 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>dev.tamboui</groupId>
+      <artifactId>tamboui-toolkit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>dev.tamboui</groupId>
+      <artifactId>tamboui-jline3-backend</artifactId>
+    </dependency>
+    <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <scope>compile</scope>
@@ -112,7 +129,7 @@
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>athena</artifactId>
-      <!-- scope? -->
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -151,6 +168,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>appassembler-maven-plugin</artifactId>
         <configuration>
+          <extraJvmArguments>--enable-native-access=ALL-UNNAMED</extraJvmArguments>
           <repositoryLayout>flat</repositoryLayout>
           <repositoryName>lib</repositoryName>
           <programs>

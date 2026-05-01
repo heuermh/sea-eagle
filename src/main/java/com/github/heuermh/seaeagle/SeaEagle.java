@@ -311,6 +311,8 @@ public final class SeaEagle implements Callable<Integer> {
                 }
             case "tui":
                 return new TuiFormat();
+            case "tui2":
+                return new Tui2Format();
             case "text":
             case "tsv":
             case "tab-delimited":
