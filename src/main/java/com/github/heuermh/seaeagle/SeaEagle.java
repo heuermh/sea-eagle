@@ -183,9 +183,7 @@ public final class SeaEagle implements Callable<Integer> {
             return 1;
         }
 
-        // todo: is this necessary?  move to try-with-resources block?
         athenaClient.close();
-
         return 0;
     }
 
@@ -311,8 +309,6 @@ public final class SeaEagle implements Callable<Integer> {
                 }
             case "tui":
                 return new TuiFormat();
-            case "tui2":
-                return new Tui2Format();
             case "text":
             case "tsv":
             case "tab-delimited":

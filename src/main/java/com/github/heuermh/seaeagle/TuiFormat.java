@@ -17,44 +17,59 @@ package com.github.heuermh.seaeagle;
 
 import java.io.IOException;
 
+import java.time.Duration;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import com.googlecode.lanterna.TerminalSize;
+import dev.tamboui.layout.Alignment;
+import dev.tamboui.layout.Constraint;
+import dev.tamboui.layout.Layout;
+import dev.tamboui.layout.Rect;
+import dev.tamboui.style.Color;
+import dev.tamboui.style.Style;
+import dev.tamboui.terminal.Backend;
+import dev.tamboui.terminal.BackendFactory;
+import dev.tamboui.terminal.Frame;
+import dev.tamboui.terminal.Terminal;
+import dev.tamboui.text.Line;
+import dev.tamboui.text.Span;
+import dev.tamboui.text.Text;
+import dev.tamboui.tui.TuiRunner;
+import dev.tamboui.tui.event.Event;
+import dev.tamboui.tui.event.KeyCode;
+import dev.tamboui.tui.event.KeyEvent;
+import dev.tamboui.widgets.block.Block;
+import dev.tamboui.widgets.block.BorderType;
+import dev.tamboui.widgets.block.Borders;
+import dev.tamboui.widgets.block.Title;
+import dev.tamboui.widgets.paragraph.Paragraph;
 
-import com.googlecode.lanterna.gui2.AsynchronousTextGUIThread;
-import com.googlecode.lanterna.gui2.BasicWindow;
-import com.googlecode.lanterna.gui2.BorderLayout;
-import com.googlecode.lanterna.gui2.EmptySpace;
-import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
-import com.googlecode.lanterna.gui2.Panel;
-import com.googlecode.lanterna.gui2.SeparateTextGUIThread;
-import com.googlecode.lanterna.gui2.Window;
-import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
+import static dev.tamboui.toolkit.Toolkit.*;
 
-import com.googlecode.lanterna.gui2.table.DefaultTableCellRenderer;
-import com.googlecode.lanterna.gui2.table.DefaultTableHeaderRenderer;
-import com.googlecode.lanterna.gui2.table.Table;
+import dev.tamboui.toolkit.app.ToolkitRunner;
 
-import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.screen.TerminalScreen;
-
-import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import dev.tamboui.tui.TuiConfig;
 
 import software.amazon.awssdk.services.athena.model.ColumnInfo;
 import software.amazon.awssdk.services.athena.model.Datum;
 import software.amazon.awssdk.services.athena.model.Row;
 
+import com.google.common.collect.HashBasedTable;
+
 /**
  * Text- or terminal-based UI (tui) format.
  */
 class TuiFormat extends ResultsProcessor {
+    private boolean running = true;
     private boolean seenHeader = false;
     private boolean seenHeaderRow = false;
-    private Table<String> table;
-    private List<HorizontalAlignment> columnAlignments;
+    private List<String> columnNames;
+    private List<Alignment> columnAlignments;
+    private final TableState tableState = new TableState();
+    private final com.google.common.collect.Table<Integer, String, String> tableModel = HashBasedTable.create();
 
     TuiFormat() {
         // empty
@@ -64,16 +79,12 @@ class TuiFormat extends ResultsProcessor {
     void columns(final List<ColumnInfo> columns) {
         if (!seenHeader) {
             columnAlignments = new ArrayList<>(columns.size());
-            List<String> columnNames = new ArrayList<>(columns.size());
+            columnNames = new ArrayList<>(columns.size());
             for (ColumnInfo columnInfo : columns) {
                 columnNames.add(columnInfo.name());
-                HorizontalAlignment columnAlign = "varchar".equals(columnInfo.type()) ? HorizontalAlignment.LEFT : HorizontalAlignment.RIGHT;
+                Alignment columnAlign = "varchar".equals(columnInfo.type()) ? Alignment.LEFT : Alignment.RIGHT;
                 columnAlignments.add(columnAlign);
             }
-            table = new Table<>(columnNames.toArray(new String[0]));
-            table.setTableCellRenderer(new PrettyTableCellRenderer());
-            table.setTableHeaderRenderer(new PrettyTableHeaderRenderer());
-
             seenHeader = true;
         }
     }
@@ -100,139 +111,174 @@ class TuiFormat extends ResultsProcessor {
     void rows(final List<ColumnInfo> columns, final List<Row> rows) {
         for (Row row : rows) {
             if (seenHeaderRow || !isHeaderRow(columns, row)) {
-                List<String> rowValues = new ArrayList<>(row.data().size());
+                int columnIndex = 0;
+                int rowIndex = tableModel.rowKeySet().size();
                 for (Datum datum : row.data()) {
-                    rowValues.add(datum.varCharValue());
+                    tableModel.put(rowIndex, columnNames.get(columnIndex), datum.varCharValue());
+                    columnIndex++;
                 }
-                table.getTableModel().addRow(rowValues);
             }
         }
     }
 
     @Override
     void complete() throws IOException {
-        Terminal terminal = new DefaultTerminalFactory().createTerminal();
-        Screen screen = new TerminalScreen(terminal);
-        screen.startScreen();
+        // select first row
+        tableState.selectFirst();
 
-        WindowBasedTextGUI gui = new MultiWindowTextGUI(new SeparateTextGUIThread.Factory(), screen);
-        BasicWindow window = new BasicWindow("sea-eagle");
-        // todo: Q and ESC should kill window
-        //window.waitUntilClosed();
+        var config = TuiConfig.builder()
+            .noTick()
+            .mouseCapture(false)
+            .pollTimeout(Duration.ofMillis(50))
+            .resizeGracePeriod(Duration.ofMillis(100))
+            .build();
 
-        // todo: ENTER/RETURN should copy selected row?
-        // todo: terminal copy/paste should work on selected row
-
-        window.setHints(Arrays.asList(Window.Hint.NO_DECORATIONS, Window.Hint.FULL_SCREEN, Window.Hint.FIT_TERMINAL_WINDOW));
-
-        Panel panel = new Panel();
-        panel.setLayoutManager(new BorderLayout());
-
-        EmptySpace top = new EmptySpace(new TerminalSize(0, 1));
-        top.setLayoutData(BorderLayout.Location.TOP);
-        panel.addComponent(top);
-
-        EmptySpace left = new EmptySpace(new TerminalSize(4, 0));
-        left.setLayoutData(BorderLayout.Location.LEFT);
-        panel.addComponent(left);
-
-        table.setLayoutData(BorderLayout.Location.CENTER);
-        panel.addComponent(table);
-
-        window.setComponent(panel);
-        gui.addWindow(window);
-
-        try {
-            AsynchronousTextGUIThread guiThread = (AsynchronousTextGUIThread) gui.getGUIThread();
-            guiThread.start();
-            guiThread.waitForStop();
+        try (var tui = TuiRunner.create(config)) {
+            tui.run((event, runner) -> { return handleEvent(event, runner); }, frame -> renderUI(frame));
         }
-        catch (InterruptedException e) {
-            // ignore
-        }
-        finally {
-            screen.stopScreen();
+        catch (Exception e) {
+            throw new IOException("caught " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Pretty table cell renderer.
-     */
-    static class PrettyTableCellRenderer extends DefaultTableCellRenderer<String> {
-        private int padding = 2;
-
-        @Override
-        public TerminalSize getPreferredSize(final Table<String> table,
-                                             final String cell,
-                                             final int columnIndex,
-                                             final int rowIndex) {
-            TerminalSize preferred =  super.getPreferredSize(table, cell, columnIndex, rowIndex);
-            return preferred.withRelativeColumns(padding * 2);
+    boolean handleEvent(final Event event, final TuiRunner runner) {
+        if (event instanceof KeyEvent) {
+            return handleKeyEvent((KeyEvent) event, runner);
         }
-
-        /*
-          left and center alignment do not work
-        @Override
-        protected void render(final Table<String> table,
-                              final String cell,
-                              final int columnIndex,
-                              final int rowIndex,
-                              final boolean isSelected,
-                              final TextGUIGraphics textGUIGraphics) {
-
-            List<String> lines = Arrays.asList(getContent(cell));
-            int columnWidth = getPreferredSize(table, cell, columnIndex, rowIndex).getColumns();
-
-            List<String> alignedLines = align(lines, 1, columnWidth, columnAlignments.get(columnIndex), VerticalAlignment.TOP);
-
-            int rowCount = 0;
-            for (String line : alignedLines) {
-                textGUIGraphics.putString(0, rowCount++, line);
-            }
-        }
-        */
+        return false;
     }
 
-    /**
-     * Pretty table header renderer.
-     */
-    static class PrettyTableHeaderRenderer extends DefaultTableHeaderRenderer<String> {
-        private int padding = 2;
+    boolean handleKeyEvent(final KeyEvent keyEvent, final TuiRunner runner) {
+        if (keyEvent.isQuit() || keyEvent.isChar('q') || keyEvent.isKey(KeyCode.ESCAPE)) {
+            runner.quit();
+            return true;
+        }
+        else if (keyEvent.isUp() || keyEvent.isChar('k')) {
+            tableState.selectPrevious();
+            return true;
+        }
+        else if (keyEvent.isDown() || keyEvent.isChar('j')) {
+            tableState.selectNext(tableModel.rowKeySet().size());
+            return true;
+        }
+        else if (keyEvent.isHome() || keyEvent.isChar('g')) {
+            tableState.selectFirst();
+            return true;
+        }
+        else if (keyEvent.isEnd() || keyEvent.isChar('G')) {
+            tableState.selectLast(tableModel.rowKeySet().size());
+            return true;
+        }
+        // todo: page up, page down
+        return false;
+    }
 
-        @Override
-        public TerminalSize getPreferredSize(final Table<String> table,
-                                             final String label,
-                                             final int columnIndex) {
+    private void renderUI(final Frame frame) {
+        Rect area = frame.area();
 
-            /*
-              thread deadlock?
-            int maxWidth = 0;
-            for (int i = 0; i < table.getTableModel().getRowCount(); i++) {
-                int length = TerminalTextUtils.getColumnWidth(table.getTableModel().getCell(i, columnIndex));
-                if (maxWidth < length) {
-                    maxWidth = length;
-                }
-            }
-            TerminalSize preferred = new TerminalSize(maxWidth, 1);
-            */
-            TerminalSize preferred = super.getPreferredSize(table, label, columnIndex);
-            return preferred.withRelativeColumns(padding * 2);
+        List<Rect> layout = Layout.vertical()
+            .constraints(
+                Constraint.fill(),     // table
+                Constraint.length(3)   // footer
+            )
+            .split(area);
+
+        renderTable(frame, layout.get(0));
+        renderFooter(frame, layout.get(1));
+    }
+
+    private List<Cell> headerRow() {
+        List<Cell> cells = new ArrayList<Cell>();
+        for (String columnName : columnNames) {
+            cells.add(Cell.from(columnName == null ? "" : columnName).style(Style.EMPTY.bold()).alignment(Alignment.CENTER));
+        }
+        // add an extra one to the right
+        cells.add(Cell.from("").style(Style.EMPTY.bold()).alignment(Alignment.CENTER));
+        return cells;
+    }
+
+    private List<Cell> dataRow(final int rowKey) {
+        List<Cell> rowValues = new ArrayList<Cell>();
+        Map<String, String> row = tableModel.row(rowKey);
+        for (int i = 0; i < columnNames.size(); i++) {
+            String columnName = columnNames.get(i);
+            Alignment columnAlignment = columnAlignments.get(i);
+            String rowValue = row.get(columnName);
+            rowValues.add(Cell.from(rowValue == null ? "" : rowValue).style(Style.EMPTY.notBold()).alignment(columnAlignment));
+        }
+        // add an extra one to the right
+        rowValues.add(Cell.from("").style(Style.EMPTY.notBold()).alignment(Alignment.CENTER));
+        return rowValues;
+    }
+
+    private List<Constraint> columnWidths() {
+        List<Constraint> columnWidths = new ArrayList<Constraint>();
+        int distribute = 100 / (columnNames.size() + 1);
+        for (int i = 0; i < columnNames.size(); i++) {
+            columnWidths.add(Constraint.percentage(distribute));
+        }
+        // add an extra one to the right
+        columnWidths.add(Constraint.fill());
+        return columnWidths;
+    }
+
+    private void renderTable(final Frame frame, final Rect area) {
+
+        // create header row
+        com.github.heuermh.seaeagle.Row header = com.github.heuermh.seaeagle.Row.from(headerRow()).style(Style.EMPTY.fg(Color.YELLOW));
+
+        // create data rows with alternating colors
+        List<com.github.heuermh.seaeagle.Row> rows = new ArrayList<>();
+        for (int i = 0; i < tableModel.rowKeySet().size(); i++) {
+            Style rowStyle = i % 2 == 0 ? Style.EMPTY : Style.EMPTY.bg(Color.indexed(236));
+            rows.add(com.github.heuermh.seaeagle.Row.from(dataRow(i)).style(rowStyle));
         }
 
-        /*
-          width is invalid
-        @Override
-        public void drawHeader(final Table<String> table,
-                               final String label,
-                               final int index,
-                               final TextGUIGraphics textGUIGraphics) {
+        Table table = Table.builder()
+            .header(header)
+            .rows(rows)
+            .widths(columnWidths())
+            .highlightStyle(Style.EMPTY.bg(Color.BLUE).fg(Color.WHITE).bold())
+            .highlightSymbol(" ▶ ")
+            .columnSpacing(1)
+            .block(Block.builder()
+                .borders(Borders.ALL)
+                .borderType(BorderType.ROUNDED)
+                .borderStyle(Style.EMPTY.fg(Color.GREEN))
+                .title(Title.from(
+                    Line.from(
+                        Span.raw(" (" + tableModel.rowKeySet().size() + " total) ").dim()
+                    )
+                ))
+                .build())
+            .build();
 
-            ThemeDefinition themeDefinition = table.getThemeDefinition();
-            textGUIGraphics.applyThemeStyle(themeDefinition.getCustom("HEADER", themeDefinition.getNormal()));
+        frame.renderStatefulWidget(table, area, tableState);
+    }
 
-            int columnWidth = getPreferredSize(table, "", index).getColumns();
-            textGUIGraphics.putString(0, 0, align(label, columnWidth, HorizontalAlignment.CENTER));
-        }
-        */
+    private void renderFooter(final Frame frame, final Rect area) {
+        Line helpLine = Line.from(
+            Span.raw(" j/↓").bold().yellow(),
+            Span.raw(" Down  ").dim(),
+            Span.raw("k/↑").bold().yellow(),
+            Span.raw(" Up  ").dim(),
+            Span.raw("g").bold().yellow(),
+            Span.raw(" First  ").dim(),
+            Span.raw("G").bold().yellow(),
+            Span.raw(" Last  ").dim(),
+            Span.raw("q").bold().yellow(),
+            Span.raw(" Quit").dim()
+        );
+
+        Paragraph footer = Paragraph.builder()
+            .text(Text.from(helpLine))
+            .block(Block.builder()
+                .borders(Borders.ALL)
+                .borderType(BorderType.ROUNDED)
+                .borderStyle(Style.EMPTY.fg(Color.DARK_GRAY))
+                .build())
+            .build();
+
+        frame.renderWidget(footer, area);
     }
 }
