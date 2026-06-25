@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.dishevelled</groupId>
     <artifactId>dsh-parent</artifactId>
-    <version>58-SNAPSHOT</version>
+    <version>59</version>
   </parent>
   <groupId>com.github.heuermh.seaeagle</groupId>
   <artifactId>sea-eagle</artifactId>
@@ -30,9 +30,9 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.43.2</awssdk.version>
-    <dsh-compress.version>1.8.2</dsh-compress.version>
-    <duckdb.version>1.5.2.1</duckdb.version>
+    <awssdk.version>2.46.17</awssdk.version>
+    <dsh-compress.version>1.8.4</dsh-compress.version>
+    <duckdb.version>1.5.4.0</duckdb.version>
     <lanterna.version>3.2.0-alpha1</lanterna.version>
     <picocli.version>4.7.7</picocli.version>
     <slf4j.version>1.7.36</slf4j.version>
