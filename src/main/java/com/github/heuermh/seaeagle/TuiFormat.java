@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import java.time.Duration;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +29,11 @@ import dev.tamboui.layout.Layout;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
-import dev.tamboui.terminal.Backend;
-import dev.tamboui.terminal.BackendFactory;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.terminal.Terminal;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
 import dev.tamboui.text.Text;
+import dev.tamboui.tui.TuiConfig;
 import dev.tamboui.tui.TuiRunner;
 import dev.tamboui.tui.event.Event;
 import dev.tamboui.tui.event.KeyCode;
@@ -46,12 +43,6 @@ import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
 import dev.tamboui.widgets.block.Title;
 import dev.tamboui.widgets.paragraph.Paragraph;
-
-import static dev.tamboui.toolkit.Toolkit.*;
-
-import dev.tamboui.toolkit.app.ToolkitRunner;
-
-import dev.tamboui.tui.TuiConfig;
 
 import software.amazon.awssdk.services.athena.model.ColumnInfo;
 import software.amazon.awssdk.services.athena.model.Datum;
@@ -63,7 +54,6 @@ import com.google.common.collect.HashBasedTable;
  * Text- or terminal-based UI (tui) format.
  */
 class TuiFormat extends ResultsProcessor {
-    private boolean running = true;
     private boolean seenHeader = false;
     private boolean seenHeaderRow = false;
     private List<String> columnNames;
@@ -134,7 +124,7 @@ class TuiFormat extends ResultsProcessor {
             .build();
 
         try (var tui = TuiRunner.create(config)) {
-            tui.run((event, runner) -> { return handleEvent(event, runner); }, frame -> renderUI(frame));
+            tui.run(this::handleEvent, this::renderUI);
         }
         catch (Exception e) {
             throw new IOException("caught " + e.getMessage(), e);
@@ -223,7 +213,6 @@ class TuiFormat extends ResultsProcessor {
     }
 
     private void renderTable(final Frame frame, final Rect area) {
-
         // create header row
         com.github.heuermh.seaeagle.Row header = com.github.heuermh.seaeagle.Row.from(headerRow()).style(Style.EMPTY.fg(Color.YELLOW));
 
