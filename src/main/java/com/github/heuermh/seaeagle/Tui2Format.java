@@ -17,6 +17,8 @@ package com.github.heuermh.seaeagle;
 
 import java.io.IOException;
 
+import java.time.Duration;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +37,15 @@ import dev.tamboui.terminal.Terminal;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
 import dev.tamboui.text.Text;
+import dev.tamboui.tui.TuiRunner;
+import dev.tamboui.tui.event.Event;
+import dev.tamboui.tui.event.KeyCode;
+import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
 import dev.tamboui.widgets.block.Title;
 import dev.tamboui.widgets.paragraph.Paragraph;
-import dev.tamboui.widgets.table.Cell;
-//import dev.tamboui.widgets.table.Row;
-import dev.tamboui.widgets.table.Table;
-import dev.tamboui.widgets.table.TableState;
 
 import static dev.tamboui.toolkit.Toolkit.*;
 
@@ -121,97 +123,57 @@ class Tui2Format extends ResultsProcessor {
 
     @Override
     void complete() throws IOException {
-        try (Backend backend = BackendFactory.create()) {
-            // what do these do?
-            backend.enableRawMode();
-            backend.enterAlternateScreen();
-            // hide cursor false
-            // mouse capture false
+        // select first row
+        tableState.selectFirst();
 
-            Terminal<Backend> terminal = new Terminal<>(backend);
+        var config = TuiConfig.builder()
+            .noTick()
+            .mouseCapture(false)
+            .pollTimeout(Duration.ofMillis(50))
+            .resizeGracePeriod(Duration.ofMillis(100))
+            .build();
 
-            // handle resize
-            backend.onResize(() -> {
-                terminal.draw(this::ui);
-            });
-
-            // select first row
-            tableState.selectFirst();
-
-            // redraw first time
-            terminal.draw(this::ui);
-
-            // event loop
-            while (running) {
-                int c = backend.read(100);
-                if (c == -2 || c == -1) {
-                    continue;
-                }
-
-                boolean needsRedraw = handleInput(c, backend);
-                if (needsRedraw) {
-                    terminal.draw(this::ui);
-                }
-            }
+        try (var tui = TuiRunner.create(config)) {
+            tui.run((event, runner) -> { return handleEvent(event, runner); }, frame -> renderUI(frame));
         }
         catch (Exception e) {
             throw new IOException("caught " + e.getMessage(), e);
         }
     }
 
-    private boolean handleInput(final int c, final Backend backend) throws IOException {
-        // handle escape sequences
-        if (c == 27) {
-            int next = backend.peek(50);
-            if (next == '[') {
-                backend.read(50);
-                int code = backend.read(50);
-                return handleEscapeSequence(code);
-            }
-            return false;
+    boolean handleEvent(final Event event, final TuiRunner runner) {
+        if (event instanceof KeyEvent) {
+            return handleKeyEvent((KeyEvent) event, runner);
         }
-
-        return switch (c) {
-            // todo: escape key?
-            case 'q', 'Q', 3 -> {
-                running = false;
-                yield true;
-            }
-            case 'j', 'J' -> {
-                tableState.selectNext(tableModel.rowKeySet().size());
-                yield true;
-            }
-            case 'k', 'K' -> {
-                tableState.selectPrevious();
-                yield true;
-            }
-            case 'g' -> {
-                tableState.selectFirst();
-                yield true;
-            }
-            case 'G' -> {
-                tableState.selectLast(tableModel.rowKeySet().size());
-                yield true;
-            }
-            default -> false;
-        };
+        return false;
     }
 
-    private boolean handleEscapeSequence(final int code) {
-        return switch (code) {
-            case 'A' -> { // up
-                tableState.selectPrevious();
-                yield true;
-            }
-            case 'B' -> { // down
-                tableState.selectNext(tableModel.rowKeySet().size());
-                yield true;
-            }
-            default -> false;
-        };
+    boolean handleKeyEvent(final KeyEvent keyEvent, final TuiRunner runner) {
+        if (keyEvent.isQuit() || keyEvent.isChar('q') || keyEvent.isKey(KeyCode.ESCAPE)) {
+            runner.quit();
+            return true;
+        }
+        else if (keyEvent.isUp() || keyEvent.isChar('k')) {
+            tableState.selectPrevious();
+            return true;
+        }
+        else if (keyEvent.isDown() || keyEvent.isChar('j')) {
+            tableState.selectNext(tableModel.rowKeySet().size());
+            return true;
+        }
+        else if (keyEvent.isHome() || keyEvent.isChar('g')) {
+            tableState.selectFirst();
+            return true;
+        }
+        else if (keyEvent.isEnd() || keyEvent.isChar('G')) {
+            tableState.selectLast(tableModel.rowKeySet().size());
+            return true;
+        }
+        // todo: page up, page down
+        return false;
     }
 
-    private void ui(final Frame frame) {
+    private void renderUI(final Frame frame) {
         Rect area = frame.area();
 
         List<Rect> layout = Layout.vertical()
@@ -228,9 +190,10 @@ class Tui2Format extends ResultsProcessor {
     private List<Cell> headerRow() {
         List<Cell> cells = new ArrayList<Cell>();
         for (String columnName : columnNames) {
-            // todo: column alignment
-            cells.add(Cell.from(columnName == null ? "" : columnName).style(Style.EMPTY.bold()));
+            cells.add(Cell.from(columnName == null ? "" : columnName).style(Style.EMPTY.bold()).alignment(Alignment.CENTER));
         }
+        // add an extra one to the right
+        cells.add(Cell.from("").style(Style.EMPTY.bold()).alignment(Alignment.CENTER));
         return cells;
     }
 
@@ -241,39 +204,34 @@ class Tui2Format extends ResultsProcessor {
             String columnName = columnNames.get(i);
             Alignment columnAlignment = columnAlignments.get(i);
             String rowValue = row.get(columnName);
-            rowValues.add(Cell.from(rowValue == null ? "" : rowValue).style(Style.EMPTY.notBold()));
-            //rowValues.add(Cell.from(rowValue == null ? "" : rowValue).alignment(columnAlignment).style(Style.EMPTY.notBold()));
-            //rowValues.add(Text.from(rowValue == null ? "" : rowValue).alignment(columnAlignment));
+            rowValues.add(Cell.from(rowValue == null ? "" : rowValue).style(Style.EMPTY.notBold()).alignment(columnAlignment));
         }
+        // add an extra one to the right
+        rowValues.add(Cell.from("").style(Style.EMPTY.notBold()).alignment(Alignment.CENTER));
         return rowValues;
     }
 
     private List<Constraint> columnWidths() {
         List<Constraint> columnWidths = new ArrayList<Constraint>();
-        int lastIndex = columnNames.size() - 1;
         int distribute = 100 / (columnNames.size() + 1);
         for (int i = 0; i < columnNames.size(); i++) {
-            if (i < lastIndex) {
-                columnWidths.add(Constraint.percentage(distribute));
-            }
-            else {
-                columnWidths.add(Constraint.fill());
-            }
+            columnWidths.add(Constraint.percentage(distribute));
         }
+        // add an extra one to the right
+        columnWidths.add(Constraint.fill());
         return columnWidths;
     }
 
     private void renderTable(final Frame frame, final Rect area) {
 
         // create header row
-        dev.tamboui.widgets.table.Row header = dev.tamboui.widgets.table.Row.from(headerRow()).style(Style.EMPTY.fg(Color.YELLOW));
+        com.github.heuermh.seaeagle.Row header = com.github.heuermh.seaeagle.Row.from(headerRow()).style(Style.EMPTY.fg(Color.YELLOW));
 
         // create data rows with alternating colors
-        List<dev.tamboui.widgets.table.Row> rows = new ArrayList<>();
+        List<com.github.heuermh.seaeagle.Row> rows = new ArrayList<>();
         for (int i = 0; i < tableModel.rowKeySet().size(); i++) {
-            // todo: style for column alignment?
             Style rowStyle = i % 2 == 0 ? Style.EMPTY : Style.EMPTY.bg(Color.indexed(236));
-            rows.add(dev.tamboui.widgets.table.Row.from(dataRow(i)).style(rowStyle));
+            rows.add(com.github.heuermh.seaeagle.Row.from(dataRow(i)).style(rowStyle));
         }
 
         Table table = Table.builder()
