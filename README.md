@@ -39,7 +39,7 @@ OPTIONS
   -i, --query-path=<queryPath>                     SQL query input path, default stdin.
   -p, --execution-parameters=<executionParameters> SQL query execution parameters, if any.
   -o, --results-path=<resultsPath>                 Query results path, default stdout.
-  -f, --format, --results-format=<resultsFormat>   Query results format { pretty, sparse, text, parquet }, default text.
+  -f, --format, --results-format=<resultsFormat>   Query results format { pretty, sparse, text, parquet, tui }, default text.
       --left-pad=<leftPad>                         Left pad query results, default 2 for pretty and sparse formats.
       --verbose                                    Show additional logging messages.
   -h, --help                                       Show this help message and exit.
@@ -203,7 +203,7 @@ $ se \
 
 #### Parquet format
 
-Finally, results may be written out to a local Parquet file
+Alternatively, results may be written out to a local Parquet file
 ```bash
 $ se \
     ... \
@@ -229,3 +229,17 @@ D SELECT * FROM read_parquet("results.parquet");
 │ 4 rows            3 columns │
 └─────────────────────────────┘
 ```
+
+
+#### Text- or terminal-based UI (tui) format
+
+Finally, results may be loaded into an interactive TUI table for display in the terminal
+
+```bash
+$ se \
+    ... \
+    --query "SELECT * FROM table LIMIT 120" \
+    --format tui
+```
+
+![Screenshot of interactive TUI table](/images/tui-screenshot.png)
