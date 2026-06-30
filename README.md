@@ -2,6 +2,23 @@
 
 Command line tools for [AWS Athena](https://aws.amazon.com/athena/).
 
+<br/>
+
+![Photo of Icthyophaga leucogaster](/images/sea-eagle.jpg)
+
+Photo from https://avifauna.hkbws.org.hk/species/0180/026300
+
+
+### Etymology
+
+> The white-bellied sea eagle (_Icthyophaga leucogaster_) is a large diurnal bird
+> of prey in the family Accipitridae. A distinctive bird, the adult white-bellied
+> sea eagle has a white head, breast, under-wing coverts and tail. The upper parts
+> are grey and the black under-wing flight feathers contrast with the white coverts.
+
+https://en.wikipedia.org/wiki/White-bellied_sea_eagle
+
+
 ## Hacking sea-eagle
 
 Install
@@ -243,3 +260,4 @@ $ se \
 ```
 
 ![Screenshot of interactive TUI table](/images/tui-screenshot.png)
+
