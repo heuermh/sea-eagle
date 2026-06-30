@@ -4,7 +4,7 @@ Command line tools for [AWS Athena](https://aws.amazon.com/athena/).
 
 <br/>
 
-![Photo of Icthyophaga leucogaster](/images/sea-eagle.jpg){width=500}
+![Photo of Icthyophaga leucogaster](/images/sea-eagle.jpg)
 
 Photo from https://avifauna.hkbws.org.hk/species/0180/026300
 
