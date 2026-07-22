@@ -30,9 +30,9 @@
     <url>https://github.com/heuermh/sea-eagle/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.46.17</awssdk.version>
+    <awssdk.version>2.49.0</awssdk.version>
     <dsh-compress.version>1.8.4</dsh-compress.version>
-    <duckdb.version>1.5.4.0</duckdb.version>
+    <duckdb.version>1.5.5.0</duckdb.version>
     <picocli.version>4.7.7</picocli.version>
     <slf4j.version>1.7.36</slf4j.version>
     <tamboui.version>0.4.0</tamboui.version>
@@ -40,11 +40,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>com.googlecode.lanterna</groupId>
-        <artifactId>lanterna</artifactId>
-        <version>${lanterna.version}</version>
-      </dependency>
       <dependency>
         <groupId>dev.tamboui</groupId>
         <artifactId>tamboui-bom</artifactId>
